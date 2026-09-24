@@ -84,6 +84,10 @@ public class ModItems {
 
     public static void fillConsumables(CreativeModeTab.ItemDisplayParameters pParameters, CreativeModeTab.Output pOutput) {
         for (ConsumableIndex index : LrTacticalAPI.getConsumableIndexes()) {
+            // one built on another mod's item (its "base_item") belongs in that mod's own tab
+            if (index.getBaseItem() != CONSUMABLE.get()) {
+                continue;
+            }
             ItemStack stack = index.createItemStack();
             pOutput.accept(stack);
         }

@@ -1,5 +1,6 @@
 package me.xjqsh.lrtactical.client.resource.manager;
 
+import me.xjqsh.lrtactical.client.resource.HeldItemRedraw;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
@@ -31,5 +32,6 @@ public class ThrowableDisplayManager extends JsonDataManager<ThrowableDisplayIns
                 GunMod.LOGGER.error(getMarker(), "Failed to load display file {}", id, e);
             }
         }
+        HeldItemRedraw.afterStateMachinesReplaced();
     }
 }

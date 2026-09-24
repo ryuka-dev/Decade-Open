@@ -1,5 +1,6 @@
 package me.xjqsh.lrtactical.client.renderer.item;
 
+import me.xjqsh.lrtactical.client.resource.HeldItemRedraw;
 import com.google.gson.annotations.SerializedName;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -156,6 +157,7 @@ public class FlashShieldItemRenderer extends AnimateGeoItemRenderer<BedrockAnima
                     }
                 })
                 .ifPresent(this::init);
+        HeldItemRedraw.afterStateMachinesReplaced();
     }
 
 

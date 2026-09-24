@@ -172,6 +172,17 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
         return IThrowable.super.isSame(stack1, stack2);
     }
 
+    /**
+     * Every throwable is this one item, told apart by NBT, and Forge's default only compares the
+     * item: switching to another throwable mid-use would carry the ticks over, so the new one skips
+     * its prepare time, gets its fuse cut by the first one's cooking, and dodges its cooldown, which
+     * use() only checked for the first one. Another stack of the same throwable goes on as before.
+     */
+    @Override
+    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
+        return isSame(oldStack, newStack);
+    }
+
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         if (this.getThrowableIndex(stack).isEmpty()) {

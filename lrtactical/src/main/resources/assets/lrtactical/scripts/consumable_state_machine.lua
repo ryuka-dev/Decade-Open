@@ -66,11 +66,13 @@ end
 
 function main_track_states.using.update(this, context)
     if not context:isUsing() then
-        if context:getStackCount() > 0 then
-            context:trigger("re_draw")
-        else
+        if context:getStackCount() <= 0 then
             context:trigger("stop_use")
+        elseif context:isHeld() then
+            -- cancelled, or used with more left: draw the next one
+            context:trigger("re_draw")
         end
+        -- otherwise switched away: the put-away comes next, so do not draw it again first
     end
 end
 

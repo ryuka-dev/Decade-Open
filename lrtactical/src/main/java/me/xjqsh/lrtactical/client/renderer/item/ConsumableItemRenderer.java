@@ -1,5 +1,6 @@
 package me.xjqsh.lrtactical.client.renderer.item;
 
+import com.github.mcmodderanchor.simplebedrockmodel.v1.client.handler.FirstPersonRenderHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -11,6 +12,7 @@ import com.tacz.guns.client.model.bedrock.BedrockPart;
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
 import me.xjqsh.lrtactical.api.LrTacticalAPI;
 import me.xjqsh.lrtactical.api.animation.ConsumableAnimationStateContext;
+import me.xjqsh.lrtactical.api.item.IConsumable;
 import me.xjqsh.lrtactical.client.renderer.JumpSwayUtil;
 import me.xjqsh.lrtactical.client.resource.display.ConsumableDisplayInstance;
 import me.xjqsh.lrtactical.item.index.ConsumableIndex;
@@ -35,8 +37,14 @@ import static net.minecraft.world.item.ItemDisplayContext.GUI;
 public class ConsumableItemRenderer extends AnimateGeoItemRenderer<BedrockAnimatedModel, ConsumableAnimationStateContext> {
     private static final SlotModel SLOT_MODEL = new SlotModel();
 
+    /** The hotbar slot the item in first person was drawn from; only the main hand draws one. */
+    private int drawnSlot = -1;
+
     @Override
     public ConsumableAnimationStateContext initContext(ItemStack stack, Player player, float partialTick) {
+        if (player != null) {
+            drawnSlot = player.getInventory().selected;
+        }
         ConsumableAnimationStateContext context = new ConsumableAnimationStateContext();
         this.updateContext(context, stack, player, partialTick);
         return context;
@@ -47,7 +55,14 @@ public class ConsumableItemRenderer extends AnimateGeoItemRenderer<BedrockAnimat
         context.setCurrentItem(stack);
         context.setUsing(player.isUsingItem());
         context.setUsingTick(player.getTicksUsingItem());
+        context.setHeld(isHeld(stack, player));
         context.setPartialTicks(partialTick);
+    }
+
+    private boolean isHeld(ItemStack stack, Player player) {
+        IConsumable consumable = IConsumable.of(stack);
+        return consumable != null && player.getInventory().selected == drawnSlot
+                && consumable.isSame(stack, player.getMainHandItem());
     }
 
     @Override
@@ -77,6 +92,13 @@ public class ConsumableItemRenderer extends AnimateGeoItemRenderer<BedrockAnimat
     @Override
     public void renderFirstPerson(LocalPlayer player, ItemStack stack, ItemDisplayContext ctx, PoseStack poseStack, MultiBufferSource bufferSource,
                                   int light, float partialTick) {
+        // Switched away from and put away already: simplebedrockmodel held the vanilla hand renderer
+        // still during the put-away, so vanilla still has this item cached and lowers it once more
+        // when the next item is not one simplebedrockmodel draws (a vanilla item, a gun, an empty
+        // hand). Its animation has exited by then, so it would pop up in its rest pose.
+        if (!isHeld(stack, player) && !FirstPersonRenderHandler.shouldLockVanilla()) {
+            return;
+        }
         BedrockAnimatedModel model = getModel(stack);
         if (model != null) {
             poseStack.pushPose();

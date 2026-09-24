@@ -7,7 +7,7 @@
 | 目录 | 当前版本 | 上游 |
 |---|---|---|
 | `tacz/` | 1.1.8-hotfix-decade.7 | https://github.com/MCModderAnchor/TACZ |
-| `lrtactical/` | 尚未发布 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
+| `lrtactical/` | 0.4.3-decade.5 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
 | `decade-items/` | 尚未发布 | —（自制） |
 
 本仓库只接收发布，不在这里开发。

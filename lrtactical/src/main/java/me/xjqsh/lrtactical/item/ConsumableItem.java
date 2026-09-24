@@ -1,6 +1,7 @@
 package me.xjqsh.lrtactical.item;
 
 import com.tacz.guns.api.item.IAnimationItem;
+import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.event.ConsumableUseEvent;
 import me.xjqsh.lrtactical.api.item.IConsumable;
 import me.xjqsh.lrtactical.capability.CombatPropertiesProvider;
@@ -9,7 +10,9 @@ import me.xjqsh.lrtactical.client.renderer.item.ConsumableItemRenderer;
 import me.xjqsh.lrtactical.inventory.tooltip.ConsumableTooltip;
 import me.xjqsh.lrtactical.item.consumable.ConsumableData;
 import me.xjqsh.lrtactical.item.index.ConsumableIndex;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
@@ -40,6 +43,13 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ConsumableItem extends Item implements IAnimationItem, IConsumable {
+    /**
+     * Effects a category selector (@harmful, @beneficial, @neutral) leaves alone, for effects that
+     * another mod removes only through its own cure. Naming one in remove_effects still removes it.
+     */
+    public static final TagKey<MobEffect> CATEGORY_REMOVAL_IMMUNE =
+            TagKey.create(Registries.MOB_EFFECT, new ResourceLocation(EquipmentMod.MOD_ID, "category_removal_immune"));
+
     public ConsumableItem() {
         super(new Properties().stacksTo(1));
     }
@@ -158,7 +168,8 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration) {
         this.getConsumableIndex(stack).ifPresent(index -> {
             if (index.getData().isToggleUse() && entity.getTicksUsingItem() >= index.getData().getUseDuration()) {
-                if (!level.isClientSide()) {
+                // on the client too, for the local player: see finishConsumableUse
+                if (!level.isClientSide() || isLocalPlayer(entity)) {
                     finishConsumableUse(stack, level, entity);
                     entity.stopUsingItem();
                 }
@@ -166,9 +177,19 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
         });
     }
 
+    /**
+     * The server applies the effects and has the final word on the stack. The local player's client
+     * also takes one off right away, as vanilla does for food: the use ending and the count dropping
+     * then reach the animation together, instead of as two updates from the server whose order and
+     * timing vary.
+     */
     private ItemStack finishConsumableUse(ItemStack stack, Level level, LivingEntity entity) {
         this.getConsumableIndex(stack).ifPresent(index -> {
-            if (!level.isClientSide()) {
+            if (level.isClientSide()) {
+                if (isLocalPlayer(entity) && !((Player) entity).getAbilities().instabuild) {
+                    predictConsumption(stack, index);
+                }
+            } else {
                 applyEffects(entity, stack, index);
                 if (entity instanceof Player player) {
                     player.awardStat(Stats.ITEM_USED.get(this));
@@ -181,6 +202,25 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
             }
         });
         return stack;
+    }
+
+    /** What consumeAfterUse will do on the server; hurtAndBreak does nothing on the client. */
+    private static void predictConsumption(ItemStack stack, ConsumableIndex index) {
+        ConsumableData data = index.getData();
+        if (!data.hasDurability()) {
+            stack.shrink(1);
+            return;
+        }
+        int damage = stack.getDamageValue() + data.getDurabilityDamage();
+        if (damage >= stack.getMaxDamage()) {
+            stack.shrink(1);
+        } else {
+            stack.setDamageValue(damage);
+        }
+    }
+
+    private static boolean isLocalPlayer(LivingEntity entity) {
+        return entity instanceof Player player && player.isLocalPlayer();
     }
 
     private void consumeAfterUse(ItemStack stack, LivingEntity entity, ConsumableIndex index) {
@@ -207,9 +247,11 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     }
 
     private void removeEffectsByCategory(LivingEntity entity, MobEffectCategory category) {
+        var immune = ForgeRegistries.MOB_EFFECTS.tags().getTag(CATEGORY_REMOVAL_IMMUNE);
         List<MobEffect> effects = entity.getActiveEffects().stream()
                 .map(MobEffectInstance::getEffect)
                 .filter(effect -> effect.getCategory() == category)
+                .filter(effect -> !immune.contains(effect))
                 .toList();
 
         for (MobEffect effect : effects) {
@@ -253,6 +295,16 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     @Override
     public boolean isSame(ItemStack stack1, ItemStack stack2) {
         return IConsumable.super.isSame(stack1, stack2);
+    }
+
+    /**
+     * Every consumable is this one item, told apart by NBT, and Forge's default only compares the
+     * item: switching to another consumable mid-use would carry on the use with the new one and
+     * finish it early. The count or durability changing keeps the same consumable, so that goes on.
+     */
+    @Override
+    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
+        return isSame(oldStack, newStack);
     }
 
     @Override
