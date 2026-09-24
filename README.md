@@ -8,6 +8,6 @@
 |---|---|---|
 | `tacz/` | 1.1.8-hotfix-decade.7 | https://github.com/MCModderAnchor/TACZ |
 | `lrtactical/` | 0.4.3-decade.5 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
-| `decade-items/` | 尚未发布 | —（自制） |
+| `decade-items/` | 0.1.1 | —（自制） |
 
 本仓库只接收发布，不在这里开发。

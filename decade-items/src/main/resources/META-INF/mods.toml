@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+displayURL="https://github.com/ryuka-dev/Decade-Open"
+authors="${mod_authors}"
+description='''${mod_description}'''
+# both sides: it registers items, so client and server must match
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Our consumables extend lrtactical's item and rely on the fixes in the Decade fork of it.
+# Pinned to one version: "0.4.3-decade.5" sorts below upstream "0.4.3", so any open range would let
+# the unfixed upstream jar through. Bump together with the fork.
+[[dependencies.${mod_id}]]
+    modId="lrtactical"
+    mandatory=true
+    versionRange="[0.4.3-decade.5]"
+    ordering="AFTER"
+    side="BOTH"
