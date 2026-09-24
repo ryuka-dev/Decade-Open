@@ -1,0 +1,50 @@
+{
+  "model": "lrtactical:consumable/carfak_geo",
+  "animation": "lrtactical:consumable/carfak",
+  "state_machine": "lrtactical:consumable_state_machine",
+  "texture": "lrtactical:consumable/carfak_uv",
+  "slot_texture": "lrtactical:consumable/slot/carfak",
+  "display_offset": [0, 0.5, 0],
+  "transforms": {
+    "thirdperson_righthand": {
+      "translation": [
+        0,
+        -3,
+        -1
+      ]
+    },
+    "thirdperson_lefthand": {
+      "translation": [
+        0,
+        -3,
+        -1
+      ]
+    },
+    "head": {
+      "translation": [
+        0,
+        6.25,
+        0
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        -1.5,
+        0
+      ]
+    },
+    "fixed": {
+      "translation": [
+        0,
+        -4.5,
+        0
+      ],
+      "scale": [
+        2,
+        2,
+        2
+      ]
+    }
+  }
+}

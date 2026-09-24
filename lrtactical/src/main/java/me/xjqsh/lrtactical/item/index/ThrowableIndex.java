@@ -1,0 +1,90 @@
+package me.xjqsh.lrtactical.item.index;
+
+import com.google.gson.JsonElement;
+import me.xjqsh.lrtactical.api.index.ICustomItemIndex;
+import me.xjqsh.lrtactical.api.item.IThrowable;
+import me.xjqsh.lrtactical.entity.ThrowableItemEntity;
+import me.xjqsh.lrtactical.item.throwable.ThrowableData;
+import me.xjqsh.lrtactical.item.throwable.ThrowableType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class ThrowableIndex<T extends ThrowableData, E extends ThrowableItemEntity> implements ICustomItemIndex {
+    private final ThrowableType<T, E> type;
+    private final Item baseItem;
+    private final T data;
+    private final ResourceLocation id;
+    private final String name;
+    private final String tooltip;
+
+    private ThrowableIndex(@NotNull ThrowableType<T, E> type, T data,
+                          String name, String tooltip, ResourceLocation id, Item baseItem) {
+        this.type = type;
+        this.data = data;
+        this.id = id;
+        this.baseItem = baseItem;
+        this.name = name;
+        this.tooltip = tooltip;
+    }
+
+    @Nullable
+    public static <T extends ThrowableData, E extends ThrowableItemEntity> ThrowableIndex<T, E> deserialize(
+            @NotNull ThrowableType<T, E> type, JsonElement data, String name, String tooltip, ResourceLocation id, Item baseItem
+    ) {
+        T throwableData = type.serializer().parse(data);
+        if (throwableData == null) {
+            return null;
+        }
+        return new ThrowableIndex<>(type, throwableData, name, tooltip, id, baseItem);
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    /**
+     * 获取 tooltip 描述翻译键，可为 null
+     */
+    @Nullable
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return data.getStackSize();
+    }
+
+    public ThrowableType<T, E> getType() {
+        return type;
+    }
+
+    public String getDescriptionId() {
+        return name;
+    }
+
+    public E createEntity(ItemStack stack, LivingEntity thrower) {
+        return type.factory().create(stack, thrower, data);
+    }
+
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    public Item getBaseItem() {
+        return baseItem;
+    }
+
+    @Override
+    public ItemStack createItemStack() {
+        ItemStack stack = new ItemStack(baseItem);
+        if (stack.getItem() instanceof IThrowable iThrowable) {
+            iThrowable.setId(stack, this.getId());
+        }
+        return stack;
+    }
+}
