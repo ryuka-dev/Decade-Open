@@ -41,6 +41,10 @@ public class LocalPlayerMelee {
         if (!(mainHandItem.getItem() instanceof IGun iGun)) {
             return;
         }
+        // Decade: refused by the server here, so nothing plays (README-DECADE.md)
+        if (com.tacz.guns.restriction.ClientGunUseRestriction.blocksAttack(player)) {
+            return;
+        }
         GunDisplayInstance display = TimelessAPI.getGunDisplay(mainHandItem).orElse(null);
         if (display == null) {
             return;

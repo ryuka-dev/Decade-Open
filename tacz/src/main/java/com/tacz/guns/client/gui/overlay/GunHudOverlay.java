@@ -54,6 +54,10 @@ public class GunHudOverlay implements IGuiOverlay {
         if (!RenderConfig.GUN_HUD_ENABLE.get()) {
             return;
         }
+        // Decade: WeaponSlotHudOverlay draws the guns once the server has named the weapon slots (README-DECADE.md)
+        if (com.tacz.guns.restriction.ClientGunUseRestriction.usableSlots() < net.minecraft.world.entity.player.Inventory.getSelectionSize()) {
+            return;
+        }
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (!(player instanceof IClientPlayerGunOperator)) {

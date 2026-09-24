@@ -30,7 +30,7 @@ apply plugin: 'eclipse'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'java'
 
-version = "1.1.8-hotfix"
+version = "1.1.8-hotfix-decade.7"
 // 版本号，正式发布需要修改这一行
 //version = FORMAT.format(new Date())
 group = "com.tacz"
@@ -271,6 +271,31 @@ java {
     // 编译源码文件，方便发布 maven
     withSourcesJar()
 }
+
+// Decade: the jar with its bundled libraries is the one that ships, so it carries the plain name the
+// deploy script and pack/modlist.tsv expect; the jar without them is marked instead.
+tasks.named('jarJar') {
+    archiveClassifier = ''
+}
+jar {
+    archiveClassifier = 'slim'
+}
+
+// Decade: the default gun pack (51 MB of the 57 MB jar) ships beside the jar as a zip in tacz_default/, so
+// a code update does not make every player download it again. Built byte for byte the same while the pack
+// is unchanged; its version follows the upstream pack, not ours. On start it is exported to tacz/ from the
+// zip (DefaultPackArchive) instead of from the jar. README-DECADE.md.
+def defaultGunPackVersion = '1.1.8-hotfix'
+tasks.named('jar') { exclude 'assets/tacz/custom/**' }
+tasks.named('jarJar') { exclude 'assets/tacz/custom/**' }
+tasks.register('defaultGunPackZip', Zip) {
+    from 'src/main/resources/assets/tacz/custom/tacz_default_gun'
+    archiveFileName = "tacz_default_gun-${defaultGunPackVersion}.zip"
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+tasks.named('build') { dependsOn 'defaultGunPackZip' }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

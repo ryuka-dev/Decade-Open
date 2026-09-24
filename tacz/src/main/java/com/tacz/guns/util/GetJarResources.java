@@ -91,6 +91,18 @@ public final class GetJarResources {
         copyModDirectory(GunMod.class, srcPath, root, path);
     }
 
+    /**
+     * Decade: the same export, from a zip on disk (com.tacz.guns.resource.DefaultPackArchive, README-DECADE.md).
+     */
+    public static void copyZipDirectory(Path zip, Path root, String path) {
+        try {
+            URL url = new URL("jar:" + zip.toUri() + "!/");
+            exportFolderIfChanged(GunMod.class, zip.getFileName().toString(), url, root, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Nullable
     public static InputStream readModFile(String filePath) {
         URL url = GunMod.class.getResource(filePath);

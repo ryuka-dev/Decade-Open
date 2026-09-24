@@ -56,6 +56,10 @@ public class LocalPlayerReload {
         if (!(mainHandItem.getItem() instanceof AbstractGunItem gunItem)) {
             return;
         }
+        // Decade: refused by the server here, so nothing plays (README-DECADE.md)
+        if (com.tacz.guns.restriction.ClientGunUseRestriction.blocksReload(player)) {
+            return;
+        }
         ResourceLocation gunId = gunItem.getGunId(mainHandItem);
         GunData gunData = TimelessAPI.getClientGunIndex(gunId).map(ClientGunIndex::getGunData).orElse(null);
         if (gunData == null) {

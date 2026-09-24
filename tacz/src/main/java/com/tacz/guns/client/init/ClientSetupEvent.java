@@ -66,6 +66,8 @@ public class ClientSetupEvent {
     public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
         // 注册 HUD
         event.registerAboveAll("tac_gun_hud_overlay", new GunHudOverlay());
+        // Decade: the weapon slots' HUD, in place of the one above when the server names them (README-DECADE.md)
+        event.registerAboveAll("decade_weapon_slot_hud", new com.tacz.guns.client.gui.overlay.WeaponSlotHudOverlay());
         event.registerAboveAll("tac_heat_bar", new HeatBarOverlay());
         event.registerAboveAll("tac_kill_amount_overlay", new KillAmountOverlay());
         event.registerAbove(CROSSHAIR.id(), "tac_interact_key_overlay", new InteractKeyTextOverlay());

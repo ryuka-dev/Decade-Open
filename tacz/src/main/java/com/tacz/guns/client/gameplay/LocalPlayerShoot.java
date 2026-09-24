@@ -118,6 +118,10 @@ public class LocalPlayerShoot {
         if (!(mainHandItem.getItem() instanceof IGun iGun)) {
             return ShootResult.NOT_GUN;
         }
+        // Decade: refused by the server here, so nothing plays (README-DECADE.md)
+        if (com.tacz.guns.restriction.ClientGunUseRestriction.blocksAttack(player)) {
+            return ShootResult.FORGE_EVENT_CANCEL;
+        }
         ResourceLocation gunId = iGun.getGunId(mainHandItem);
         Optional<ClientGunIndex> gunIndexOptional = TimelessAPI.getClientGunIndex(gunId);
         GunDisplayInstance display = TimelessAPI.getGunDisplay(mainHandItem).orElse(null);

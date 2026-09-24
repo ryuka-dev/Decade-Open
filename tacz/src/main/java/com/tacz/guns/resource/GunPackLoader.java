@@ -84,6 +84,8 @@ public enum GunPackLoader implements RepositorySource {
                 for (ResourceManager.ExtraEntry entry : ResourceManager.EXTRA_ENTRIES) {
                     GetJarResources.copyModDirectory(entry.modMainClass(), entry.srcPath(), resourcePacksPath, entry.extraDirName());
                 }
+                // Decade: the default pack is exported from its zip instead of the jar (README-DECADE.md)
+                DefaultPackArchive.export(resourcePacksPath);
             }
             firstLoad = false;
         }
