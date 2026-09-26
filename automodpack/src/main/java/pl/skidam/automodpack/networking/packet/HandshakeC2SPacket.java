@@ -49,6 +49,11 @@ public class HandshakeC2SPacket {
     }
 
     private static void updateIfNeededMod(ClientHandshakePacketListenerImpl handler, String serverAMVersion, String serverMCVersion) {
+        // Decade: never replace this client with another AutoModpack; see SelfUpdater.update
+        if (!AM_VERSION.equals(serverAMVersion)) {
+            LOGGER.warn("Decade: the server runs AutoModpack {}, this client {}; not replacing this client", serverAMVersion, AM_VERSION);
+        }
+        if (true) return;
         if (!clientConfig.syncAutoModpackVersion) {
             LOGGER.warn("AutoModpack version syncing is disabled in client config. Cannot sync to server version: {}", serverAMVersion);
             return;

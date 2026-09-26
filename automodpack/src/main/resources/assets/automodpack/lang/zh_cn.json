@@ -44,7 +44,7 @@
   "automodpack.download.calculating": "正在计算...",
   "automodpack.download.eta": "剩余时间：%s",
   "automodpack.download.downloading": "正在下载：",
-  "automodpack.download.noFiles": "没有要下载的文件！",
+  "automodpack.download.noFiles": "正在准备下载…",
 
   "automodpack.redownload": "重新下载模组包",
   "automodpack.redownload.description": "这可能会修复模组包的问题。",
@@ -53,6 +53,8 @@
   "automodpack.error.files": "部分文件下载失败。",
   "automodpack.error.critical": "下载模组包时发生严重错误。",
   "automodpack.error.logs": "请查看日志以获取更多详情。",
+  "automodpack.decade.untrusted": "这次更新没有德卡的有效签名，已拒绝安装，游戏里的内容保持不变。",
+  "automodpack.decade.untrusted.hint": "请到德卡的固定下载入口重新下载整合包；如果一再出现，请告诉管理员。",
 
   "automodpack.fetch": "正在从Modrinth和CurseForge获取直接URL...",
   "automodpack.fetch.found": "找到%s个直接URL。",

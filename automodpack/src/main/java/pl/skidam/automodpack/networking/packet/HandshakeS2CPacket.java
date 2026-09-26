@@ -97,7 +97,11 @@ public class HandshakeS2CPacket {
 
             if (!isAcceptedLoader || !isAcceptedVersion) {
                 Component reason = VersionedText.literal("AutoModpack version mismatch! Install " + AM_VERSION + " version of AutoModpack mod for " + LOADER_MANAGER.getPlatformType().toString().toLowerCase() + " to play on this server!");
-                if (isClientVersionHigher(clientHandshakePacket.amVersion)) {
+                if (AutoModpackProtocol.isDecadeVersion(AM_VERSION)) {
+                    // Decade: whatever the client runs, the way in is the pack from the download page
+                    reason = VersionedText.literal("德卡需要德卡版的 AutoModpack：请到德卡的固定下载入口重新下载整合包。 "
+                            + "Decade needs its own build of AutoModpack: download the modpack again from Decade's download page.");
+                } else if (isClientVersionHigher(clientHandshakePacket.amVersion)) {
                     reason = VersionedText.literal("You are using a more recent version of AutoModpack than the server. Please contact the server administrator to update the AutoModpack mod.");
                 }
                 connection.send(new ClientboundLoginDisconnectPacket(reason));

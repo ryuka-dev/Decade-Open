@@ -30,7 +30,8 @@ public class ReLauncher {
         this.modpackDir = modpackDir;
         this.updateType = updateType;
         this.changelogs = changelogs;
-        this.updateMessage = "Successfully updated the modpack!";
+        // Decade: shown under the title of the window drawn before Minecraft loads (Gui)
+        this.updateMessage = "点“关闭游戏”后，在启动器里再点一次启动即可。";
     }
 
     public final void restart(boolean shutdownInPreload, Runnable... callbacks) {

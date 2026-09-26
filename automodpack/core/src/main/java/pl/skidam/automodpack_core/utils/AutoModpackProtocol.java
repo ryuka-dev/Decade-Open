@@ -9,8 +9,22 @@ public final class AutoModpackProtocol {
     private AutoModpackProtocol() {
     }
 
+    // Decade: our builds are 4.0.x-decade.N. Semantic versioning reads them as pre-releases, so the upstream rule
+    // below would demand an exact match, and every client would be turned away the day the server moves to the
+    // next build; yet the handshake is unchanged, so they can all talk. A Decade server takes Decade clients of
+    // any build and no others: an upstream client does not check the signed list and must not install our pack.
+    private static final java.util.regex.Pattern DECADE = java.util.regex.Pattern.compile("4\\.0\\.\\d+-decade\\.\\d+");
+
+    /** Whether a version is one of Decade's builds of AutoModpack. */
+    public static boolean isDecadeVersion(String version) {
+        return version != null && DECADE.matcher(version).matches();
+    }
+
     /** Returns whether the client version is valid for this server version. */
     public static boolean acceptsClient(String serverVersion, String clientVersion) {
+        if (isDecadeVersion(serverVersion)) {
+            return isDecadeVersion(clientVersion);
+        }
         return (serverVersion != null && serverVersion.equals(clientVersion))
                 || (isLegacyCompatibleVersion(serverVersion)
                 && isLegacyCompatibleVersion(clientVersion));

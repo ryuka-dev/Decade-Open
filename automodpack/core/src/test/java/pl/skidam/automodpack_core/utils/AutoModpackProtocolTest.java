@@ -25,6 +25,29 @@ class AutoModpackProtocolTest {
     }
 
     @Test
+    void aDecadeServerTakesDecadeClientsOfAnyBuild() {
+        assertTrue(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.0.6-decade.3"));
+        assertTrue(AutoModpackProtocol.acceptsClient("4.0.6-decade.3", "4.0.6-decade.5"));
+        assertTrue(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.0.7-decade.1"));
+    }
+
+    @Test
+    void aDecadeServerRefusesUpstreamAndOtherClients() {
+        assertFalse(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.0.6"));
+        assertFalse(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.0.5"));
+        assertFalse(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.1.0"));
+        assertFalse(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", "4.0.6-decadeX.1"));
+        assertFalse(AutoModpackProtocol.acceptsClient("4.0.6-decade.5", null));
+    }
+
+    @Test
+    void aDecadeClientReportsItsOwnVersion() {
+        // so a Decade server sees a Decade build; an upstream 4.0.x server keeps its exact-match rule for it
+        assertEquals("4.0.6-decade.3", AutoModpackProtocol.getHandshakeVersion("4.0.6-decade.5", "4.0.6-decade.3"));
+        assertEquals("4.0.6-decade.3", AutoModpackProtocol.getHandshakeVersion("4.0.6", "4.0.6-decade.3"));
+    }
+
+    @Test
     void aliasesStableFourZeroVersions() {
         assertEquals(
                 "4.0.5",

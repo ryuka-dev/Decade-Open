@@ -39,6 +39,8 @@ public class ModpackUpdater {
     private final Secrets.Secret modpackSecret;
     private Path modpackDir;
     private Path modpackContentFile;
+    // Decade: the server's offer checked against the list signed offline (DecadeGate); null until checked
+    private DecadeGate decadeGate;
 
     public String getModpackName() {
         return serverModpackContent.modpackName;
@@ -74,6 +76,18 @@ public class ModpackUpdater {
                 return;
             }
 
+            if (!preload) {
+                showUpdatingScreen();
+            }
+
+            // Decade: nothing of an offer is installed unless it matches the list signed offline.
+            // No warning screen, no "continue anyway": an unsigned offer is refused as a whole.
+            decadeGate = DecadeGate.check(serverModpackContent, modpackAddresses, modpackSecret);
+            if (!decadeGate.trusted()) {
+                refuseUntrusted();
+                return;
+            }
+
             // Prepare for modpack update
             serverModpackContentJson = GSON.toJson(serverModpackContent);
 
@@ -92,8 +106,9 @@ public class ModpackUpdater {
                         startUpdate(serverModpackContent.list);
                     }
                 } else {
+                    // Decade: the offer is signed, which is what the confirmation screen stood in for
                     fullDownload = true;
-                    showDangerScreen(parentScreen, serverModpackContent.list);
+                    startUpdate(serverModpackContent.list);
                 }
             } else {
                 // Handle existing modpack
@@ -131,7 +146,39 @@ public class ModpackUpdater {
     }
 
     private boolean hasUnverifiedJars() {
+        // Decade: a jar in the signed list is verified, found on Modrinth or CurseForge or not
+        if (decadeGate != null && decadeGate.trusted()) {
+            return false;
+        }
         return !unverifiedJarFiles.isEmpty();
+    }
+
+    // Decade: in game the player has just been disconnected so the update can run. Checking the signed list
+    // takes seconds, and without a screen of ours the vanilla "connection lost" screen stays up all that time;
+    // players take it for a failure and connect again, and the new login invalidates the download secret of the
+    // update already running (seen on the test server: 20 files failed, then everything was downloaded twice).
+    // The progress screen goes up at once, and once more if the vanilla screen arrived after it; only that
+    // screen is replaced, never an error or restart screen of ours.
+    private void showUpdatingScreen() {
+        String name = serverModpackContent.modpackName;
+        new ScreenManager().download(null, name);
+        java.util.concurrent.CompletableFuture.delayedExecutor(600, java.util.concurrent.TimeUnit.MILLISECONDS).execute(() -> {
+            boolean vanillaDisconnected = new ScreenManager().getScreen()
+                    .map(screen -> screen.getClass().getSimpleName().equals("DisconnectedScreen"))
+                    .orElse(false);
+            if (vanillaDisconnected) {
+                new ScreenManager().download(null, name);
+            }
+        });
+    }
+
+    // Decade: at launch keep playing the pack already installed; in game say why the update was refused
+    private void refuseUntrusted() {
+        if (preload) {
+            abortPreloadUpdate();
+        } else {
+            new ScreenManager().error("automodpack.decade.untrusted", "automodpack.decade.untrusted.hint");
+        }
     }
 
     private void abortPreloadUpdate() {
@@ -351,8 +398,14 @@ public class ModpackUpdater {
                     LOGGER.warn("Trying to refresh the modpack content");
                     LOGGER.info("Sending hashes to refresh: {}", hashesToRefresh.values());
                     var refreshedContentOptional = ModpackUtils.refreshServerModpackContent(modpackAddresses, modpackSecret, hashesArray, false);
+                    // Decade: a refreshed offer is checked like the first one
+                    if (refreshedContentOptional.isPresent() && !decadeGate.recheck(refreshedContentOptional.get()).trusted()) {
+                        refreshedContentOptional = java.util.Optional.empty();
+                    }
                     if (refreshedContentOptional.isEmpty()) {
                         LOGGER.error("Failed to refresh the modpack content");
+                        // Decade: they are still missing; without this the update would report success
+                        failedDownloads.putAll(failedDownloadsSecMap);
                     } else {
                         LOGGER.info("Successfully refreshed the modpack content");
                         // retry the download

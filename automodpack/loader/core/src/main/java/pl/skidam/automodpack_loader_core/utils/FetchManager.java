@@ -51,8 +51,10 @@ public class FetchManager {
 
         try {
             completableFuture = CompletableFuture.runAsync(() -> {
-                fetchByMurmur(cf);
+                // Decade: a file's links are tried in the order found. Modrinth first: from China its CDN did
+                // better than CurseForge's in our tests (a player saw 3 of 5 CurseForge downloads at 55 KB/s)
                 fetchBySha1(mo);
+                fetchByMurmur(cf);
             });
             completableFuture.join();
         } catch (CancellationException e) {

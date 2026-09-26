@@ -46,23 +46,25 @@ public class Gui {
         frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
         frame.getContentPane().setBackground(new ColorUIResource(22, 27, 34));
 
-        JLabel RestartText = new JLabel("Restart your game!");
+        // Decade: in Chinese, and in the logical font Dialog, which falls back to a CJK font on Windows;
+        // Segoe UI has no Chinese glyphs and would draw boxes
+        JLabel RestartText = new JLabel("德卡整合包已更新，请重新启动游戏");
         RestartText.setBounds(0, 10, 400, 32);
-        RestartText.setFont(new Font("Segoe UI", Font.PLAIN, 24));
+        RestartText.setFont(new Font(Font.DIALOG, Font.PLAIN, 22));
         RestartText.setForeground(Color.green);
         RestartText.setHorizontalAlignment(JLabel.CENTER);
 
         JLabel CustomText = new JLabel(text);
         CustomText.setBounds(0, 48, 400, 36);
-        CustomText.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        CustomText.setFont(new Font(Font.DIALOG, Font.PLAIN, 15));
         CustomText.setForeground(Color.white);
         CustomText.setHorizontalAlignment(JLabel.CENTER);
 
-        JButton OKButton = new JButton("OK");
-        OKButton.setBounds(160, 100, 60, 25);
+        JButton OKButton = new JButton("关闭游戏");
+        OKButton.setBounds(140, 100, 120, 30);   // Decade: 60x25 fitted "OK"; the Chinese label wants 92x29 (Metal)
         OKButton.setBackground(new Color(0, 153, 51));
         OKButton.setForeground(Color.white);
-        OKButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        OKButton.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
         OKButton.setFocusPainted(false);
         OKButton.addActionListener(e -> {
             frame.dispose();
@@ -83,7 +85,7 @@ public class Gui {
         frame.add(OKButton);
         frame.add(CustomText);
         frame.add(RestartText);
-        frame.setTitle("AutoModpack Window");
+        frame.setTitle("德卡 Decade");
         frame.setIconImage(icon);
         frame.setAlwaysOnTop(true);
         frame.setVisible(true);

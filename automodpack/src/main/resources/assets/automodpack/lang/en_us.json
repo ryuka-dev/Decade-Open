@@ -44,7 +44,7 @@
   "automodpack.download.calculating": "Calculating...",
   "automodpack.download.eta": "Time left: %s",
   "automodpack.download.downloading": "Downloading:",
-  "automodpack.download.noFiles": "No files to download!",
+  "automodpack.download.noFiles": "Preparing the download…",
 
   "automodpack.redownload": "Redownload Modpack",
   "automodpack.redownload.description": "It may fix issues with modpack.",
@@ -53,6 +53,8 @@
   "automodpack.error.files": "Failed to download some files.",
   "automodpack.error.critical": "Critical error while downloading modpack.",
   "automodpack.error.logs": "Check for more details in logs.",
+  "automodpack.decade.untrusted": "This update is not signed by Decade and was refused; nothing was installed.",
+  "automodpack.decade.untrusted.hint": "Download the modpack again from Decade's download page, and tell an admin if this keeps happening.",
 
   "automodpack.fetch": "Fetching direct url's from Modrinth and CurseForge...",
   "automodpack.fetch.found": "Found %s direct url's.",

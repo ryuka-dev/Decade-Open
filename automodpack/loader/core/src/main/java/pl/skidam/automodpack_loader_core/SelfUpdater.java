@@ -28,6 +28,15 @@ public class SelfUpdater {
     }
 
     public static boolean update(Jsons.ModpackContentFields serverModpackContent) {
+        // Decade: this jar checks the server's updates against a signed list, so it must never be swapped for
+        // another AutoModpack, not even the upstream release of the same number: a server would only have to
+        // name a version on Modrinth for the client to replace itself and drop the check. New versions of
+        // this jar come with the pack. Kept as upstream below, unreachable.
+        if (serverModpackContent != null && serverModpackContent.automodpackVersion != null
+                && !serverModpackContent.automodpackVersion.equals(AM_VERSION)) {
+            LOGGER.warn("Decade: the server runs AutoModpack {}, this client {}; not replacing this client", serverModpackContent.automodpackVersion, AM_VERSION);
+        }
+        if (true) return false;
         if (LOADER_MANAGER.isDevelopmentEnvironment()) return false;
 
         if (LOADER_MANAGER.getEnvironmentType() == LoaderManagerService.EnvironmentType.SERVER && !serverConfig.selfUpdater) {

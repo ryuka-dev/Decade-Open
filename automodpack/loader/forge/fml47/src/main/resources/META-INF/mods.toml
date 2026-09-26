@@ -6,7 +6,7 @@ license = "LGPLv3"
 modId = "automodpack"
 version = "${version}"
 displayName = "AutoModpack"
-displayURL = "https://modrinth.com/mod/automodpack"
+displayURL = "https://github.com/ryuka-dev/Decade-Open"
 authors = "Skidam"
 description = '''
 
