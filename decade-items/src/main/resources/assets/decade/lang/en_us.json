@@ -1,3 +1,9 @@
 {
-  "itemGroup.decade": "Decade"
+  "itemGroup.decade": "Decade",
+  "item.decade.ruin_wand": "Ruin Survey Wand",
+  "item.decade.ruin_wand.tip1": "Admin tool, works for operators only",
+  "item.decade.ruin_wand.tip2": "Left / right click a block: the two corners of a selection",
+  "item.decade.ruin_wand.tip3": "Sneak + right click a block: can the cell in front of that face hold a crate",
+  "item.decade.ruin_wand.tip4": "Sneak + left click a block: add or remove a spawn point in that cell",
+  "item.decade.ruin_wand.tip5": "Shows nearby ruins while held; sneak + right click the air to clear the selection"
 }

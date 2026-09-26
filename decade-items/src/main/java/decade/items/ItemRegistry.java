@@ -1,6 +1,7 @@
 package decade.items;
 
 import decade.items.item.PackConsumable;
+import decade.items.item.SurveyWand;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -17,6 +18,9 @@ public final class ItemRegistry {
 
     /** Its look and use come from content/tacz/decade: data/decade/index/consumable/armor_plate.json. */
     public static final RegistryObject<Item> ARMOR_PLATE = ITEMS.register("armor_plate", PackConsumable::new);
+
+    /** Admin tool; its clicks are handled by decade_ruins on the server, by this registry name. */
+    public static final RegistryObject<Item> RUIN_WAND = ITEMS.register("ruin_wand", SurveyWand::new);
 
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.decade"))
