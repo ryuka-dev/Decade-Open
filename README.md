@@ -9,6 +9,6 @@
 | `tacz/` | 1.1.8-hotfix-decade.7 | https://github.com/MCModderAnchor/TACZ |
 | `lrtactical/` | 0.4.3-decade.5 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
 | `decade-items/` | 0.1.2 | —（自制） |
-| `automodpack/` | 4.0.6-decade.7 | https://github.com/Skidamek/AutoModpack |
+| `automodpack/` | 4.0.6-decade.8 | https://github.com/Skidamek/AutoModpack |
 
 本仓库只接收发布，不在这里开发。

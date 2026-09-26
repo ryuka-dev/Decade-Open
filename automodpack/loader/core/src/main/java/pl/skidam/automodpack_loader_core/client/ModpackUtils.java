@@ -609,6 +609,13 @@ public class ModpackUtils {
             } catch (CertificateEncodingException e) {
                 return false;
             }
+            // Decade: every certificate is trusted without asking. The certificate only says which machine is
+            // talking; what it may install is decided by the signed list (DecadeGate), which neither the server
+            // nor anyone posing as it can produce without the offline key. The question screen was left with one
+            // effect: turning new players away, and again whenever a player joins by another address (a domain
+            // and its IP are different hosts to it). Kept as upstream below, unreachable.
+            LOGGER.info("Decade: trusting the certificate of {} without asking ({}); updates are checked against the signed list", address.getHostString(), fingerprint);
+            if (true) return true;
             if (Objects.equals(knownHosts.hosts.get(address.getHostString()), fingerprint))
                 return true;
             LOGGER.warn("Received untrusted certificate from server {}!", address.getHostString());
