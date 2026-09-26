@@ -23,6 +23,11 @@ public class KeyClothConfig {
                 .setDefaultValue(false).setTooltip(Component.translatable("config.tacz.client.key.auto_reload.desc"))
                 .setSaveConsumer(KeyConfig.AUTO_RELOAD::set).build());
 
+        // Decade: AutoUnjam (README-DECADE.md)
+        key.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.tacz.client.key.auto_unjam"), KeyConfig.AUTO_UNJAM.get())
+                .setDefaultValue(true).setTooltip(Component.translatable("config.tacz.client.key.auto_unjam.desc"))
+                .setSaveConsumer(KeyConfig.AUTO_UNJAM::set).build());
+
         key.addEntry(new OpenGunPackDirEntry(Component.literal("test")));
     }
 }

@@ -199,6 +199,8 @@
   "config.tacz.client.key.hold_to_crawl.desc": "True if you want to hold the crawl button to crawl",
   "config.tacz.client.key.auto_reload": "Auto Reload",
   "config.tacz.client.key.auto_reload.desc": "Try to reload automatically when the gun is empty",
+  "config.tacz.client.key.auto_unjam": "Auto Unjam",
+  "config.tacz.client.key.auto_unjam.desc": "Clear a jammed gun automatically, as if you had pressed inspect",
   "config.tacz.client.render": "Render",
   "config.tacz.client.render.gun_lod_render_distance": "Gun Lod Render Distance",
   "config.tacz.client.render.gun_lod_render_distance.desc": "How far to display the lod model, 0 means always display",

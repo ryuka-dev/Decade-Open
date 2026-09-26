@@ -8,7 +8,7 @@
 | 基于 | 标签 `1.1.8-hotfix`（提交 `b43eb84c38e9768d8e73c8b14f0b845669704b38`，2026-05-25），保留上游历史 |
 | 版本号 | `1.1.8-hotfix-decade.N`，每次修改递增 N |
 | 许可证 | 与上游相同：代码 GPL-3.0（见 `LICENSE`），资源 CC BY-NC-ND 4.0 |
-| 构建 | 沿用上游的 Gradle 7.5.1。**Gradle 7.5.1 不能在 Java 21 上运行**，要用 JDK 17 启动：`JAVA_HOME=<JDK 17> ./gradlew build`。产物在 `build/libs/`：`tacz-1.20.1-<版本>.jar`（带内嵌依赖，发给玩家的就是它）与默认枪包 `tacz_default_gun-1.1.8-hotfix.zip` |
+| 构建 | 沿用上游的 Gradle 7.5.1。**Gradle 7.5.1 不能在 Java 21 上运行**，要用 JDK 17 启动：`JAVA_HOME=<JDK 17> ./gradlew build`。**JDK 17 的小版本会改变编译结果**：Oracle JDK 17.0.11 构建出的 jar 与前几版逐条目一致；Microsoft Build of OpenJDK 17.0.15 会让二十多个没改过的类字节码不同，逐条目核对就看不出这次改了什么。**不要 `clean`**，它连 `build/libs/` 里的旧版本 jar 一起删掉，核对时就没有对照了。产物在 `build/libs/`：`tacz-1.20.1-<版本>.jar`（带内嵌依赖，发给玩家的就是它）与默认枪包 `tacz_default_gun-1.1.8-hotfix.zip` |
 
 ## 源码
 
@@ -35,6 +35,7 @@
 | decade.5 | decade.4 让客户端的排除卡壳动画消失：GunDB（`mod.cdv.gdb.mixin.GunPackLoaderMixin`）挂在 `GunPackLoader.discoverExtensions` 里 `scanExtensions` 之前，每次都把它的 `unjam` 动画并进 `tacz/tacz_default_gun/assets/tacz/animations/` 的 47 个文件（`DefaultPackDebug` 为 `true` 时不做）。枪包成了只读 zip，它写不进去 | 下游 mod 依赖「默认枪包是解压出来、可改的目录」 | zip 改放游戏目录的 `tacz_default/`，启动时照上游从 jar 解压的做法、在同一个位置解压到 `tacz/tacz_default_gun/`：新类 `com.tacz.guns.resource.DefaultPackArchive` 找 `tacz_default_gun-*.zip`，经 `GetJarResources` 新加的 `copyZipDirectory` 走上游原有的导出（`jar:` URL，同样按指纹只在 zip 变了时重新解压、旧目录先备份到 `tacz_backup/`）。`GunPackLoader` 加一行调用，放在 GunDB 注入点之前。核对过：解压出的 3322 个文件里，只有 GunDB 并过 `unjam` 的 47 个与 zip 不同，和拆包之前完全一样；实测枪的模型、贴图、声音、提示正常，卡壳后的排除卡壳动画正常 |
 | decade.6 | 只在客户端重建玩家实体后（例如换皮肤的 mod 或插件发来的 respawn 包）不能开火（上游 #720） | 服务端只在实体重新进入世界时全量同步 `SyncedEntityData`，客户端单方面重建的新实体退回默认值（切枪与近战冷却为 -1），基准时间戳也丢了，开火包的时间戳校验失败 | 原样并入上游 `1.20.1-dev-temp` 分支的 `c7818710`（保留原作者）：`RefreshClonePlayerDataEvent` 在 `Clone` 时把旧实体的同步数据与基准时间戳复制给新实体；真正的死亡重生、换维度随后仍由服务端全量同步覆盖。截至 2026-09-24，这是该分支比 `1.1.8-hotfix` 多出的唯一一个提交。实测死亡重生、换维度后都能正常开火（触发 #720 的场景本身没有复现条件） |
 | decade.7 | 玩家在模组列表里找不到修改版的源码 | 上游的 `displayURL` 为空 | `mods.toml` 的 `displayURL` 指向公开仓库 |
+| decade.8 | 枪卡壳后要自己想起按检视键才能排除；新手不知道，以为枪坏了 | 卡壳是 GunDB 的机制：它给枪打上 `Jammed` 标记，排除靠拦截 `InspectKey` 的两个检视入口。TaCZ 只有自动换弹，没有对应的自动排除 | 新类 `client/input/AutoUnjam`：客户端每 tick 看主手的枪有没有 `Jammed`，有就经 `InspectKey.onInspectControllerPress` 替玩家按一次检视，GunDB 照它自己的流程播排除动画、发包。只按名字读标记，不引用 GunDB 的类（它是 ARR）；没装 GunDB 就没有枪会被标记，什么都不做。换弹、切枪、拉栓、近战、状态锁期间不按（这些时候手动检视也会被拒或被打断）；枪的动画状态机还没建好时也不按：它在枪第一次画到屏幕上时才初始化，比切到这一格晚一帧以上，之前按的会被丢掉，而 GunDB 每按一次都先放一遍排除音效。同一次卡壳只按一次（最慢的 M249 排除动画 9 秒）；GunDB 的排除状态一开始就上状态锁、且就在这次按下里完成，按完锁没上就是被丢掉了（例如正在检视），1 秒后再按；没有排除动画的枪由 GunDB 播检视、服务端计时解除，不上锁，10 秒后才再按；收枪再拿出来算新的一次。（第一版没有等状态机，空手切到卡壳的枪时第一次按被丢掉，要等 10 秒，实测发现）。开关 `KeyConfig.AUTO_UNJAM`（`tacz-client.toml` 的 `[key] AutoUnjam`），**默认开**，与自动换弹并列在 TaCZ 的设置界面里，中英繁三种语言有文字。**排除之后的后摇**另由新类 `client/input/UnjamPrediction` 处理，手动排除与自动排除都适用、不受开关影响：① GunDB 在排除动画播完时发解除包，客户端却要等服务端回包才清掉 `Jammed`，其间开火被它的客户端检查拦成空仓，动画结束后枪要呆一个往返加最多一个 tick（实测 100~150 ms，延迟 40~90 ms）。现在动画一停（GunDB 只在发包的那一步停它）就清掉客户端的标记；服务端不用改：解除包先于之后的任何开火发出、走同一条连接，服务端按到达顺序处理。收枪也会停掉这个动画但不发包，所以换了格子就不预测。② 换弹能在动画结束前开火、开火打断动画尾巴，排除却必须播完。现在在排除动画的最后 200 ms 里按住开火，就给 GunDB 的状态机它自己在结尾给的输入 `unjam_finished`，GunDB 照常发包、退出排除状态，与动画播完相同；不按开火时照常播完。实测按住开火时第一枪比动画结束早 200 ms。没有排除动画、靠检视加服务端计时排除的枪两样都不做 |
 
 ## 已知的上游问题，不修
 
@@ -44,6 +45,6 @@
 
 ## 维护
 
-- 对上游文件的改动都带 `// Decade:` 注释，全文搜索就能找齐；我们自己的类在 `com.tacz.guns.restriction` 与 `com.tacz.guns.resource.DefaultPackArchive`
+- 对上游文件的改动都带 `// Decade:` 注释，全文搜索就能找齐；我们自己的类在 `com.tacz.guns.restriction`、`com.tacz.guns.resource.DefaultPackArchive`、`com.tacz.guns.client.input.AutoUnjam` 与 `com.tacz.guns.client.input.UnjamPrediction`
 - **引入时的核对**（2026-09-24）：不改任何东西构建一次，与 Modrinth 上的 `tacz-1.20.1-1.1.8-hotfix.jar` 逐个文件比对，4354 个文件一一对应，文本连行尾都相同。只有两处不同，都不影响行为：`GunSoundInstance$TaczSound.class` 多一个编译器生成的桥接方法 `m_213718_`（只是转调父类同名方法）；内嵌的 `simplebedrockmodel-2.2.2` jar 只有 `MANIFEST.MF`（构建时间）不同。因此这份源码就是 1.1.8-hotfix
-- **跟进上游**：合并上游新标签后，逐条检查上表的修改是否仍然需要、是否已被上游修掉。lrtactical 与 GunDB 都依赖 TaCZ，跟进之后要确认它们仍然兼容
+- **跟进上游**：合并上游新标签后，逐条检查上表的修改是否仍然需要、是否已被上游修掉。lrtactical 与 GunDB 都依赖 TaCZ，跟进之后要确认它们仍然兼容。`AutoUnjam` 与 `UnjamPrediction` 依赖 GunDB 的几个约定：卡壳标记叫 `Jammed`；排除挂在 `InspectKey.onInspectControllerPress` 里对 `inspect()` 的调用上；排除动画叫 `unjam`，排除状态在输入 `unjam_finished` 时发解除包并停掉动画、只有这一个出口；GunDB 升级后先核对这几处

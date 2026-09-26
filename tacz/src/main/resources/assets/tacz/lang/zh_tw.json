@@ -199,6 +199,8 @@
   "config.tacz.client.key.hold_to_crawl.desc": "如果你想要按住以卧倒的話，將該選項設為true",
   "config.tacz.client.key.auto_reload": "自動重新裝填",
   "config.tacz.client.key.auto_reload.desc": "彈藥耗盡時自動重新裝填",
+  "config.tacz.client.key.auto_unjam": "自動排除卡彈",
+  "config.tacz.client.key.auto_unjam.desc": "槍卡彈時自動排除，等同於按下檢視鍵",
   "config.tacz.client.render": "渲染",
   "config.tacz.client.render.gun_lod_render_distance": "槍枝 Lod 渲染距離",
   "config.tacz.client.render.gun_lod_render_distance.desc": "lod模型顯示多遠，0表示始終顯示",
