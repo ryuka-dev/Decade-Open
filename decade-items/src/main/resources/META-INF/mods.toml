@@ -26,11 +26,11 @@ description='''${mod_description}'''
     side="BOTH"
 
 # Our consumables extend lrtactical's item and rely on the fixes in the Decade fork of it.
-# Pinned to one version: "0.4.3-decade.5" sorts below upstream "0.4.3", so any open range would let
+# Pinned to one version: "0.4.3-decade.6" sorts below upstream "0.4.3", so any open range would let
 # the unfixed upstream jar through. Bump together with the fork.
 [[dependencies.${mod_id}]]
     modId="lrtactical"
     mandatory=true
-    versionRange="[0.4.3-decade.5]"
+    versionRange="[0.4.3-decade.6]"
     ordering="AFTER"
     side="BOTH"
