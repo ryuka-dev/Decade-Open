@@ -29,6 +29,7 @@
 | `@harmful` 这类按类别清除会顺带清掉别的 mod 只许用专门解药清除的效果（如 The Hordes 的感染） | 类别选择器无差别地清除该类全部效果 | 新增效果标签 `lrtactical:category_removal_immune`，按类别清除时跳过其中的效果；在 `remove_effects` 里点名仍会清除。德卡的标签数据在 `decade_protection` |
 | 别的 mod 提供基础物品的消耗品也出现在 lrtactical 的创造页 | 消耗品页列出全部消耗品索引，不看 `base_item` | 只列以 `lrtactical:consumable` 为基础的；其余由提供基础物品的 mod 自己放 |
 | 玩家在模组列表里找不到修改版的源码（`decade.5`） | `displayURL` 没有填 | `mods.toml` 的 `displayURL` 指向公开仓库 |
+| 燃烧瓶点着的火烧人不算投掷者的伤害：没有击杀归属，别的 mod 也看不出是谁造成的（`decade.6`） | 原版的着火伤害（`on_fire`）不带攻击者；燃烧瓶只是把目标点着 | 新增 `Igniters`：投掷物点火时记下投掷者，火还该烧着时（易燃效果续上的也算）这把火的伤害改由投掷者造成，同样的数值；不附带击退。区域云、一次性喷溅、爆炸的点火三处都经过它 |
 
 ## 已知但未修
 

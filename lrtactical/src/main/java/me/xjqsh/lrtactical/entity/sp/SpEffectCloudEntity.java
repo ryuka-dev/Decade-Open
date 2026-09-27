@@ -1,6 +1,7 @@
 package me.xjqsh.lrtactical.entity.sp;
 
 import me.xjqsh.lrtactical.entity.SmokeGrenadeEntity;
+import me.xjqsh.lrtactical.util.Igniters;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +46,7 @@ public class SpEffectCloudEntity extends AreaEffectCloud {
 
                 if (this.isIgnite() && !entity.fireImmune() && entity instanceof LivingEntity
                         && this.getBoundingBox().intersects(entity.getBoundingBox())) {
-                    entity.setSecondsOnFire(this.getIgniteTime());
+                    Igniters.ignite(entity, this.getOwner(), this.getIgniteTime());
                 }
             }
         }

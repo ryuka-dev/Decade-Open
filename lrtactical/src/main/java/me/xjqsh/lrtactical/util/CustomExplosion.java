@@ -170,7 +170,7 @@ public class CustomExplosion extends Explosion {
                         }
 
                         if (fireTime > 0) {
-                            entity.setSecondsOnFire(fireTime);
+                            Igniters.ignite(entity, this.getIndirectSourceEntity(), fireTime);
                         }
                     }
                 }

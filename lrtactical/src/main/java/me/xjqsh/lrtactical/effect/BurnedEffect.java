@@ -1,5 +1,6 @@
 package me.xjqsh.lrtactical.effect;
 
+import me.xjqsh.lrtactical.util.Igniters;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,6 +28,7 @@ public class BurnedEffect extends MobEffect {
             int r = pLivingEntity.getRemainingFireTicks();
             if (r < 40) {
                 pLivingEntity.setRemainingFireTicks(r + 40);
+                Igniters.extend(pLivingEntity);
             }
         }
     }

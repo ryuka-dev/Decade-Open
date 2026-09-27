@@ -4,6 +4,7 @@ import me.xjqsh.lrtactical.entity.sp.SpEffectCloudEntity;
 import me.xjqsh.lrtactical.item.throwable.area.EffectCloudThrowableData;
 import me.xjqsh.lrtactical.network.NetworkHandler;
 import me.xjqsh.lrtactical.network.message.SSplashParticle;
+import me.xjqsh.lrtactical.util.Igniters;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -135,7 +136,7 @@ public class EffectCloudGrenadeEntity extends ThrowableItemEntity {
             }
         }
         if (ignite && !entity.fireImmune()) {
-            entity.setSecondsOnFire(igniteTime);
+            Igniters.ignite(entity, this.getOwner(), igniteTime);
         }
     }
 
