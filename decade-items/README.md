@@ -1,6 +1,6 @@
 # Decade Items（`decade`）
 
-德卡（Decade）Minecraft 服务器的自制物品与「德卡」创造页，目前只有护甲插板 `decade:armor_plate`。
+德卡（Decade）Minecraft 服务器的自制物品与「德卡」创造页，目前有护甲插板 `decade:armor_plate`，以及管理员用的废墟勘测杖 `decade:ruin_wand`。
 
 | 项 | 值 |
 |---|---|
