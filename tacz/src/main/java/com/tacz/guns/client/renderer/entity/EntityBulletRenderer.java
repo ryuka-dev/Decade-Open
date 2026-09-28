@@ -139,7 +139,12 @@ public class EntityBulletRenderer extends EntityRenderer<EntityKineticBullet> {
 
     @Override
     public boolean shouldRender(EntityKineticBullet bullet, Frustum camera, double pCamX, double pCamY, double pCamZ) {
-        AABB aabb = bullet.getBoundingBoxForCulling().inflate(0.5);
+        // Decade: cull on the whole trail, not the bullet alone. The tracer is drawn back from the bullet
+        // towards where it came from, up to one tick's travel (renderTracerAmmo); a bullet flies a dozen
+        // blocks and more a tick, so one coming at the viewer is already behind them while its trail still
+        // crosses their view, and a sideways shot leaves the edge of the view in one tick. Testing the
+        // bullet's own box hid both.
+        AABB aabb = bullet.getBoundingBoxForCulling().expandTowards(bullet.getDeltaMovement().scale(-1)).inflate(0.5);
         if (aabb.hasNaN() || aabb.getSize() == 0) {
             aabb = new AABB(bullet.getX() - 2.0, bullet.getY() - 2.0, bullet.getZ() - 2.0, bullet.getX() + 2.0, bullet.getY() + 2.0, bullet.getZ() + 2.0);
         }

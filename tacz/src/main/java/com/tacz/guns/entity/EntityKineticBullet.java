@@ -11,6 +11,7 @@ import com.tacz.guns.api.entity.KnockBackModifier;
 import com.tacz.guns.api.event.common.EntityHurtByGunEvent;
 import com.tacz.guns.api.event.common.EntityKillByGunEvent;
 import com.tacz.guns.api.event.server.AmmoHitBlockEvent;
+import com.tacz.guns.api.event.server.AmmoPathEvent;
 import com.tacz.guns.api.item.gun.AbstractGunItem;
 import com.tacz.guns.client.particle.AmmoParticleSpawner;
 import com.tacz.guns.config.common.AmmoConfig;
@@ -347,12 +348,16 @@ public class EntityKineticBullet extends Projectile implements IEntityAdditional
                     this.onHitEntity((TacHitResult) result, startVec, endVec);
                     this.pierce--;
                     if (this.pierce < 1 || this.explosion) {
+                        // Decade: the bullet stops in this entity; what it flew this tick ends here
+                        MinecraftForge.EVENT_BUS.post(new AmmoPathEvent(this, startVec, entityResult.getHitPos()));
                         // 子弹已经穿透所有实体，结束子弹的飞行
                         this.discard();
                         return;
                     }
                 }
             }
+            // Decade: what the bullet flew this tick, up to the block it hits if any
+            MinecraftForge.EVENT_BUS.post(new AmmoPathEvent(this, startVec, endVec));
             this.onHitBlock(resultB, startVec, endVec);
         }
     }

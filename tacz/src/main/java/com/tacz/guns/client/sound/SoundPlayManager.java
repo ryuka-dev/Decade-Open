@@ -60,6 +60,16 @@ public class SoundPlayManager {
         if (name == null || !hasSoundResource(minecraft, name)) {
             return null;
         }
+        // Decade: a sound the local player makes (reload, inspect, bolt, draw, their own shots) sits at
+        // their ears, as upstream already does for first-person animation sounds and head hits. A world
+        // source at the player's own position lags a tick behind them while they move, and with the
+        // listener right on top of it that small offset swings it hard left or right. Only this client
+        // hears it this way; everyone else still hears it from where the player is.
+        // FirstPersonAnimationSoundTracking turns it back into a world source, for physical sound mods.
+        if (!relative && isLocalPlayer(entity) && !SoundConfig.FIRST_PERSON_ANIMATION_SOUND_TRACKING.get()) {
+            trackEntity = false;
+            relative = true;
+        }
         if (concurrencyLimit > 0) {
             limitConcurrentGunSound(minecraft, entity.getId(), name, concurrencyLimit);
         }
