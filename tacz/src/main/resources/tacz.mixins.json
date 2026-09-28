@@ -21,6 +21,7 @@
     "client.MouseHandlerMixin",
     "client.PlayerModelMixin",
     "client.SoundManagerPreparationsMixin",
+    "client.SubtitleOverlayMixin",
     "client.StairBlockAccessor"
   ],
   "injectors": {

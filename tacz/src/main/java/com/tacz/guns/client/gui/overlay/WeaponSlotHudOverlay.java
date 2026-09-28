@@ -63,25 +63,46 @@ public class WeaponSlotHudOverlay implements IGuiOverlay {
     private final int[] maxAmmo = new int[Inventory.getSelectionSize()];
     private final int[] inventoryAmmo = new int[Inventory.getSelectionSize()];
 
-    @Override
-    public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int width, int height) {
-        Minecraft mc = Minecraft.getInstance();
+    /**
+     * How many rows the panel shows this frame, 0 when it is not drawn: the server has not named the
+     * weapon slots, none of them holds a gun, or the HUD is hidden.
+     */
+    private static int shownSlots(Minecraft mc) {
         LocalPlayer player = mc.player;
         int slots = ClientGunUseRestriction.usableSlots();
         if (!RenderConfig.GUN_HUD_ENABLE.get() || player == null || mc.options.hideGui
                 || slots >= Inventory.getSelectionSize()) {
-            return;
+            return 0;
         }
         Inventory inventory = player.getInventory();
-        boolean anyGun = false;
         for (int slot = 0; slot < slots; slot++) {
-            anyGun |= inventory.getItem(slot).getItem() instanceof IGun;
+            if (inventory.getItem(slot).getItem() instanceof IGun) {
+                return slots;
+            }
         }
-        if (!anyGun) {
+        return 0;
+    }
+
+    /**
+     * How far up from the bottom of the screen the panel reaches this frame, 0 when it is not drawn.
+     * The subtitles move above it (SubtitleOverlayMixin).
+     */
+    public static int heightFromBottom(Minecraft mc) {
+        int slots = shownSlots(mc);
+        return slots == 0 ? 0 : MARGIN + slots * ROW_HEIGHT + (slots - 1) * ROW_GAP;
+    }
+
+    @Override
+    public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int width, int height) {
+        Minecraft mc = Minecraft.getInstance();
+        int slots = shownSlots(mc);
+        if (slots == 0) {
             return;
         }
+        LocalPlayer player = mc.player;
+        Inventory inventory = player.getInventory();
         int left = width - MARGIN - ROW_WIDTH;
-        int top = height - MARGIN - slots * ROW_HEIGHT - (slots - 1) * ROW_GAP;
+        int top = height - heightFromBottom(mc);
         for (int slot = 0; slot < slots; slot++) {
             int y = top + slot * (ROW_HEIGHT + ROW_GAP);
             drawRow(mc, graphics, player, slot, slot == inventory.selected, left, y);
