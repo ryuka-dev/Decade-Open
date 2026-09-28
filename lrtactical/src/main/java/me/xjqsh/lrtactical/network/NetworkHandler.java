@@ -94,10 +94,10 @@ public class NetworkHandler {
                 SResetMeleeSyncMessage::handle
         );
         CHANNEL.registerMessage(ID_COUNT.getAndIncrement(),
-                CCancelToggleConsumableUse.class,
-                CCancelToggleConsumableUse::encode,
-                CCancelToggleConsumableUse::new,
-                CCancelToggleConsumableUse::handle
+                CCancelItemUse.class,
+                CCancelItemUse::encode,
+                CCancelItemUse::new,
+                CCancelItemUse::handle
         );
     }
 

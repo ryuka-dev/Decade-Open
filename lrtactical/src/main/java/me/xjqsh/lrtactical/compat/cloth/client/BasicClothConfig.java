@@ -1,13 +1,22 @@
 package me.xjqsh.lrtactical.compat.cloth.client;
 
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.xjqsh.lrtactical.config.ClientConfig;
 import me.xjqsh.lrtactical.config.CommonConfig;
+import me.xjqsh.lrtactical.config.UseButtons;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.Locale;
 
 public class BasicClothConfig {
     public static void init(ConfigBuilder root, ConfigEntryBuilder entryBuilder) {
+        root.getOrCreateCategory(Component.translatable("config.lrtactical.controls"))
+                .addEntry(useButtons(entryBuilder, "click_use", ClientConfig.CLICK_USE_BUTTONS))
+                .addEntry(useButtons(entryBuilder, "hold_use", ClientConfig.HOLD_USE_BUTTONS));
+
         root.getOrCreateCategory(Component.translatable("config.lrtactical.effect"))
             .addEntry(
                 entryBuilder.startBooleanToggle(Component.translatable("config.lrtactical.effect.blackflash"), ClientConfig.BLACK_FLASH.get())
@@ -50,5 +59,15 @@ public class BasicClothConfig {
                                 .setSaveConsumer(CommonConfig.MELEE_IGNORE_INVULNERABLE_TICK_THRESHOLD::set)
                                 .build()
                 );
+    }
+
+    private static AbstractConfigListEntry<UseButtons> useButtons(ConfigEntryBuilder entryBuilder, String key,
+                                                                  ForgeConfigSpec.EnumValue<UseButtons> value) {
+        return entryBuilder.startEnumSelector(Component.translatable("config.lrtactical.controls." + key), UseButtons.class, value.get())
+                .setDefaultValue(UseButtons.BOTH)
+                .setEnumNameProvider(buttons -> Component.translatable("config.lrtactical.controls.buttons." + buttons.name().toLowerCase(Locale.ROOT)))
+                .setTooltip(Component.translatable("config.lrtactical.controls." + key + ".desc"))
+                .setSaveConsumer(value::set)
+                .build();
     }
 }

@@ -6,8 +6,8 @@
 
 | 目录 | 当前版本 | 上游 |
 |---|---|---|
-| `tacz/` | 1.1.8-hotfix-decade.12 | https://github.com/MCModderAnchor/TACZ |
-| `lrtactical/` | 0.4.3-decade.6 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
+| `tacz/` | 1.1.8-hotfix-decade.8 | https://github.com/MCModderAnchor/TACZ |
+| `lrtactical/` | 0.4.3-decade.7 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
 | `decade-items/` | 0.1.3 | —（自制） |
 | `automodpack/` | 4.0.6-decade.8 | https://github.com/Skidamek/AutoModpack |
 

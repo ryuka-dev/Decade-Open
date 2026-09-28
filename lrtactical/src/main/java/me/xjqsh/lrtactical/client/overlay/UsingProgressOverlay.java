@@ -7,6 +7,7 @@ import me.xjqsh.lrtactical.api.item.IConsumable;
 import me.xjqsh.lrtactical.api.item.ICustomItem;
 import me.xjqsh.lrtactical.api.item.IThrowable;
 import me.xjqsh.lrtactical.capability.CombatPropertiesProvider;
+import me.xjqsh.lrtactical.client.input.ItemUseButtons;
 import me.xjqsh.lrtactical.item.index.ConsumableIndex;
 import me.xjqsh.lrtactical.item.throwable.ThrowableData;
 import net.minecraft.client.Minecraft;
@@ -72,9 +73,10 @@ public class UsingProgressOverlay implements IGuiOverlay {
                 }
             }
             
-            // 为切换模式显示提示文本
-            if (isToggleMode) {
-                Component hint = Component.translatable("overlay.lrtactical.consumable.toggle_hint");
+            // which buttons cancel, as set in ItemUseButtons
+            String hintKey = ItemUseButtons.cancelHintKey(stack);
+            if (hintKey != null) {
+                Component hint = Component.translatable(hintKey);
                 int textWidth = mc.font.width(hint);
                 guiGraphics.drawString(mc.font, hint, screenWidth / 2 - textWidth / 2, y + 8, 0xFFFFFF, true);
             }
