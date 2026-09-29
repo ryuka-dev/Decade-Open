@@ -5,5 +5,10 @@
   "item.decade.ruin_wand.tip2": "Left / right click a block: the two corners of a selection",
   "item.decade.ruin_wand.tip3": "Sneak + right click a block: can the cell in front of that face hold a crate",
   "item.decade.ruin_wand.tip4": "Sneak + left click a block: add or remove a spawn point in that cell",
-  "item.decade.ruin_wand.tip5": "Shows nearby ruins while held; sneak + right click the air to clear the selection"
+  "item.decade.ruin_wand.tip5": "Shows nearby ruins while held; sneak + right click the air to clear the selection",
+  "item.decade.civil_parts": "Civilian Gun Parts",
+  "item.decade.military_parts": "Military Gun Parts",
+  "item.decade.optics": "Optics",
+  "item.decade.precision_spring": "Precision Spring",
+  "item.decade.rifled_barrel": "Rifled Barrel"
 }

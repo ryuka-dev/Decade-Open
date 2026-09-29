@@ -5,5 +5,10 @@
   "item.decade.ruin_wand.tip2": "左键 / 右键方块：选区的两个角",
   "item.decade.ruin_wand.tip3": "潜行右键方块：这一面外侧那格能否做刷新点",
   "item.decade.ruin_wand.tip4": "潜行左键方块：在那一格增删刷新点",
-  "item.decade.ruin_wand.tip5": "拿在手上显示附近的废墟；潜行右键空气清除选区"
+  "item.decade.ruin_wand.tip5": "拿在手上显示附近的废墟；潜行右键空气清除选区",
+  "item.decade.civil_parts": "民用零件",
+  "item.decade.military_parts": "军用零件",
+  "item.decade.optics": "光学元件",
+  "item.decade.precision_spring": "精密弹簧",
+  "item.decade.rifled_barrel": "膛线枪管"
 }
