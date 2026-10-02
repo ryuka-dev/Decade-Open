@@ -10,5 +10,8 @@
   "item.decade.military_parts": "Military Gun Parts",
   "item.decade.optics": "Optics",
   "item.decade.precision_spring": "Precision Spring",
-  "item.decade.rifled_barrel": "Rifled Barrel"
+  "item.decade.rifled_barrel": "Rifled Barrel",
+  "block.decade.specialty_desk": "Specialty Registry",
+  "block.decade.workstation": "Workstation",
+  "block.decade.armory": "Armory"
 }

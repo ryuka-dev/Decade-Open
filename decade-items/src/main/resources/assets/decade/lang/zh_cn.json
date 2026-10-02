@@ -10,5 +10,8 @@
   "item.decade.military_parts": "军用零件",
   "item.decade.optics": "光学元件",
   "item.decade.precision_spring": "精密弹簧",
-  "item.decade.rifled_barrel": "膛线枪管"
+  "item.decade.rifled_barrel": "膛线枪管",
+  "block.decade.specialty_desk": "专精登记处",
+  "block.decade.workstation": "制作站",
+  "block.decade.armory": "军火台"
 }
