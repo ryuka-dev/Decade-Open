@@ -1,5 +1,12 @@
 # TaCZ（德卡修改版）
 
+**English summary.** A fork of [Timeless and Classics Zero](https://github.com/MCModderAnchor/TACZ) `1.1.8-hotfix` (Forge 1.20.1) used by the Decade server. This jar goes to players, so it changes mechanics and presentation only; the server's rules and numbers are not in it. The change table below is in Chinese; the main changes:
+
+- **The client predicts from the server's rules.** The server sends which hotbar slots may use guns and when gun use is suspended (`GunUseRestriction`), and the client checks that before firing, reloading or melee, so a refused action no longer plays its animation and sound first. Clearing a jam is predicted the same way (`UnjamPrediction`).
+- **The default gun pack is split out of the jar** (57 MB → 5.7 MB). It ships unchanged as a byte-for-byte reproducible zip in the game directory's `tacz_default/` (not `tacz/`) and is extracted at startup the way upstream extracts it from the jar, so a code update no longer means re-downloading the pack.
+- **`AmmoPathEvent`** (`com.tacz.guns.api.event.server`): a server-side event fired once per bullet per tick with where that tick's flight started and ended, including the last stretch before a bullet is removed on impact. It is listen-only and changes nothing about bullets.
+- Smaller changes: auto-unjam, a weapon HUD that shows every usable gun slot, tracers no longer culled when the bullet head is off-screen, a per-item gun texture hook (`GunTextureOverride`). Every edit to an upstream file is marked `// Decade:`.
+
 德卡（Decade）Minecraft 服务器使用的 [Timeless and Classics Zero](https://github.com/MCModderAnchor/TACZ)（永恒枪械工坊：零）修改版。
 
 | 项 | 值 |
@@ -40,6 +47,7 @@
 | decade.10 | 服务端要判断子弹有没有擦着某人飞过（德卡的「子弹掠过」），从子弹外面做不到 | 子弹打中东西时在位置更新之前就被移除，每 tick 采样子弹位置会丢掉最后一段飞行，而擦身而过、打在身后墙上的那一枪正好落在最后一段 | 新事件 `com.tacz.guns.api.event.server.AmmoPathEvent`（子弹、起点、终点）：`EntityKineticBullet.onBulletTick` 在服务端每颗子弹每 tick 发一次，终点是这一 tick 真正飞到的地方——移动的终点、撞到的方块，或者穿透次数用完时最后打进的那个实体的命中点；在这一 tick 的伤害结算之后发。只供监听，不改子弹的任何行为，客户端与网络协议不变。只改了 `EntityKineticBullet`（两处 `// Decade:`）并新增这一个类；逐条目对比 decade.9，另外变化的只有它的两个内部类（同一源文件插了几行，行号表下移）与 `MANIFEST.MF` |
 | decade.11 | 迎面飞来、从身边擦过的子弹看不见曳光；对方在正前方二十来格内横着开枪也看不见；从身后射出去的看得见（2026-09-28 两人实测，站位逐个控制变量：以正侧面为界，朝自己飞来的一侧看不见） | 曳光从子弹头往回拖一段（最长一 tick 的飞行距离，`renderTracerAmmo`），但 `EntityBulletRenderer.shouldRender` 只拿子弹头自己的碰撞箱做视锥检查。子弹一 tick 飞十几二十格：迎面飞来的，下一帧子弹头已经在观察者身后、出了视野，而拖在后面的曳光还横在眼前；横着飞的，在二十来格内一 tick 就飞出视野边缘（约 20 格/tick 配 70° 视野，算下来正是二十来格） | 视锥检查的包围盒沿速度反方向延伸一整个 tick（`expandTowards(-deltaMovement)`），盖住整条曳光。只改了这一行（`// Decade:`）；逐条目对比 decade.10，只有这一个类与 `MANIFEST.MF` 不同 |
 | decade.12 | 打开声音字幕后，字幕盖在右下角的武器面板上 | 原版字幕固定画在屏幕右下，最低一行离底边 35、上下各 5；decade.3 的武器面板在同一个角落，离底边 8 到 54 | 新增 `SubtitleOverlayMixin`：面板画着的时候，整块字幕往上平移到面板顶上再空 4 像素，面板不画时原样不动。面板画不画、占多高由 `WeaponSlotHudOverlay.heightFromBottom` 给出，画面板用的是同一个判断 |
+| decade.13 | ① 德卡的杰作枪每把外观不同（磨损、划痕、图案位置跟着枪），TaCZ 只能按外观编号给一把枪换整套外观，同一外观的枪画出来一模一样；② 枪的 NBT 指向本机没有的外观时（服务端的枪包比客户端新），客户端每画一帧就打一行警告，拿着这把枪几分钟日志写了 15.8 万行 | ① 枪的贴图只按外观取，渲染时拿不到是哪一把；② `ClientIndexManager.getOrCreateGunDisplay` 每次查不到都警告，而它每帧每把枪都被问 | ① 新接口 `api/client/other/GunTextureOverride`（只在客户端）：别的 mod 登记一个，枪画出来之前按这一把枪（`ItemStack`）给出要绑的贴图，近处模型与远处（LOD）模型各问一次；没登记、回答 null 或抛异常（只记一次错误）都用外观自己的贴图。只换贴图，模型、动画、声音、枪的数据都不变。**不链接 TaCZ 的类也能登记**（德卡随包的客户端 mod 不是 GPL，不能引用 GPL 的类）：新类 `client/init/GunTextureOverrideMessages` 收 Forge 的跨 mod 消息，`gun_texture_override` 与 `gun_lod_texture_override` 各带一个 JDK 的 `BiFunction<ItemStack, ResourceLocation, ResourceLocation>`，收到就登记成 `GunTextureOverride`。`GunItemRendererWrapper` 两处取贴图的地方（第一人称；第三人称、地上、展示框共用的 `renderByItem`）各包一层（`// Decade:`）。② 同一个外观编号只警告一次（`// Decade:`）。服务端与网络协议不变；没有 mod 登记时与 decade.12 画得一样。逐条目对比 decade.12（Oracle JDK 17.0.11 构建）：多了 `GunTextureOverride` 与它的内部类、`GunTextureOverrideMessages`，变了 `GunItemRendererWrapper`（及同文件的 `$1`，行号下移）、`ClientIndexManager` 与 `MANIFEST.MF` |
 
 ## 已知的上游问题，不修
 
@@ -49,6 +57,6 @@
 
 ## 维护
 
-- 对上游文件的改动都带 `// Decade:` 注释，全文搜索就能找齐；我们自己的类在 `com.tacz.guns.restriction`、`com.tacz.guns.resource.DefaultPackArchive`、`com.tacz.guns.client.input.AutoUnjam`、`com.tacz.guns.client.input.UnjamPrediction` 与 `com.tacz.guns.api.event.server.AmmoPathEvent`
+- 对上游文件的改动都带 `// Decade:` 注释，全文搜索就能找齐；我们自己的类在 `com.tacz.guns.restriction`、`com.tacz.guns.api.client.other.GunTextureOverride`、`com.tacz.guns.client.init.GunTextureOverrideMessages`、`com.tacz.guns.resource.DefaultPackArchive`、`com.tacz.guns.client.input.AutoUnjam`、`com.tacz.guns.client.input.UnjamPrediction` 与 `com.tacz.guns.api.event.server.AmmoPathEvent`
 - **引入时的核对**（2026-09-24）：不改任何东西构建一次，与 Modrinth 上的 `tacz-1.20.1-1.1.8-hotfix.jar` 逐个文件比对，4354 个文件一一对应，文本连行尾都相同。只有两处不同，都不影响行为：`GunSoundInstance$TaczSound.class` 多一个编译器生成的桥接方法 `m_213718_`（只是转调父类同名方法）；内嵌的 `simplebedrockmodel-2.2.2` jar 只有 `MANIFEST.MF`（构建时间）不同。因此这份源码就是 1.1.8-hotfix
 - **跟进上游**：合并上游新标签后，逐条检查上表的修改是否仍然需要、是否已被上游修掉。lrtactical 与 GunDB 都依赖 TaCZ，跟进之后要确认它们仍然兼容。`AutoUnjam` 与 `UnjamPrediction` 依赖 GunDB 的几个约定：卡壳标记叫 `Jammed`；排除挂在 `InspectKey.onInspectControllerPress` 里对 `inspect()` 的调用上；排除动画叫 `unjam`，排除状态在输入 `unjam_finished` 时发解除包并停掉动画、只有这一个出口；GunDB 升级后先核对这几处

@@ -32,6 +32,8 @@ public class ClientIndexManager {
     private static final int HOTBAR_SLOT_COUNT = 9;
 
     public static final Map<ResourceLocation, GunDisplayInstance> GUN_DISPLAY = Maps.newHashMap();
+    // Decade: the display ids already warned about (getOrCreateGunDisplay)
+    private static final java.util.Set<ResourceLocation> MISSING_DISPLAY_WARNED = java.util.concurrent.ConcurrentHashMap.newKeySet();
     public static final Map<ResourceLocation, ClientGunIndex> GUN_INDEX = Maps.newHashMap();
     public static final Map<ResourceLocation, ClientAmmoIndex> AMMO_INDEX = Maps.newHashMap();
     public static final Map<ResourceLocation, ClientAttachmentIndex> ATTACHMENT_INDEX = Maps.newHashMap();
@@ -93,7 +95,11 @@ public class ClientIndexManager {
         if (instance != null) {
             return instance;
         }
-        GunMod.LOGGER.warn("{} display instance is missing from cache", displayId);
+        // Decade: once per id. This is asked every frame for every gun drawn, so a gun naming a display this client
+        // does not have (a newer gun pack on the server) filled the log at hundreds of lines a second
+        if (MISSING_DISPLAY_WARNED.add(displayId)) {
+            GunMod.LOGGER.warn("{} display instance is missing from cache (further misses are not logged)", displayId);
+        }
         return null;
     }
 

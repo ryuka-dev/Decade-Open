@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.tacz.guns.api.TimelessAPI;
+import com.tacz.guns.api.client.other.GunTextureOverride;
 import com.tacz.guns.api.client.animation.statemachine.LuaAnimationStateMachine;
 import com.tacz.guns.api.client.event.BeforeRenderHandEvent;
 import com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator;
@@ -214,9 +215,11 @@ public class GunItemRendererWrapper extends AnimateGeoItemRenderer<BedrockGunMod
                 gunModel.setRenderHand(false);
             }
             // 调用枪械模型渲染
+            // Decade: a gun may be drawn with its own texture (GunTextureOverride)
+            ResourceLocation firstPersonTexture = GunTextureOverride.resolve(stack, display.getModelTexture(), false);
             RenderType renderType = display.enablesTransparency()
-                    ? RenderType.entityTranslucent(display.getModelTexture())
-                    : RenderType.entityCutout(display.getModelTexture());
+                    ? RenderType.entityTranslucent(firstPersonTexture)
+                    : RenderType.entityCutout(firstPersonTexture);
             gunModel.render(poseStack, stack, ctx, renderType, light, OverlayTexture.NO_OVERLAY);
             // 缓存枪口位置，为第一人称曳光弹渲染作准备
             cacheMuzzlePosition(poseStack, gunModel);
@@ -279,10 +282,11 @@ public class GunItemRendererWrapper extends AnimateGeoItemRenderer<BedrockGunMod
             Pair<BedrockGunModel, ResourceLocation> lodModel = gunIndex.getLodModel();
             if (lodModel == null || RenderDistance.inRenderHighPolyModelDistance(poseStack)) {
                 gunModel = gunIndex.getGunModel();
-                gunTexture = gunIndex.getModelTexture();
+                // Decade: a gun may be drawn with its own texture (GunTextureOverride)
+                gunTexture = GunTextureOverride.resolve(stack, gunIndex.getModelTexture(), false);
             } else {
                 gunModel = lodModel.getLeft();
-                gunTexture = lodModel.getRight();
+                gunTexture = GunTextureOverride.resolve(stack, lodModel.getRight(), true);
             }
             if (gunModel == null) {
                 renderSlotTexture(poseStack, pBuffer, pPackedLight, pPackedOverlay, gunIndex.getSlotTexture());
