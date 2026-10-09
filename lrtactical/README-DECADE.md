@@ -1,5 +1,11 @@
 # lrtactical（德卡修改版）
 
+**English summary.** A fork of [LesRaisins Tactical Equipments](https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements) `0.4.3` used by the Decade server, which makes its armor plates consumables of this mod: looks and animations come from the server's gun pack, effects are resolved on the server, and no server rules or numbers are in this mod. The change table below is in Chinese; the changes:
+
+- **Consumables and throwables that share one item.** Switching to a different consumable or grenade mid-use no longer carries the progress over, skips the fuse or bypasses the cooldown (`canContinueUsing` compares ids). The local client predicts finishing a consumable, and no longer flickers the old item after switching slots or loses animations after a resource reload.
+- **Molotov fire damage is credited to the thrower** (`Igniters`); the effect tag `lrtactical:category_removal_immune` keeps removing effects by category (such as `@harmful`) from clearing effects that need their own cure; left click can also use these items, with the buttons configurable.
+- Each fix stands on its own and could be offered upstream.
+
 德卡（Decade）Minecraft 服务器使用的 [LesRaisins Tactical Equipments](https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements) 修改版。服务器的护甲插板做成它的消耗品：外观与动画来自服务器的枪包，效果在服务端结算，本 mod 里没有服务器的规则或数值。
 
 | 项 | 值 |
@@ -31,6 +37,7 @@
 | 玩家在模组列表里找不到修改版的源码（`decade.5`） | `displayURL` 没有填 | `mods.toml` 的 `displayURL` 指向公开仓库 |
 | 燃烧瓶点着的火烧人不算投掷者的伤害：没有击杀归属，别的 mod 也看不出是谁造成的（`decade.6`） | 原版的着火伤害（`on_fire`）不带攻击者；燃烧瓶只是把目标点着 | 新增 `Igniters`：投掷物点火时记下投掷者，火还该烧着时（易燃效果续上的也算）这把火的伤害改由投掷者造成，同样的数值；不附带击退。区域云、一次性喷溅、爆炸的点火三处都经过它 |
 | 拿着消耗品、投掷物或 C4 起爆器时，左键和空手一样：打人、挖方块（`decade.7`） | 这几种物品只接了使用键；TaCZ 的枪左右键各有用途，两类物品混着用时左键落空 | 左键也是使用，并且可以在模组列表的配置页（Cloth Config，客户端配置 `clickUseButtons` / `holdUseButtons`）分别设置「点按使用」（切换模式的消耗品、起爆器）和「按住使用」（按住模式的消耗品、投掷物）用哪个键：左右键都能使用或取消（默认）、仅右键、仅左键、左键使用右键取消、右键使用左键取消。没选上的键拿着这些物品时无反应：不攻击、不挖方块，也不开门、不和实体交互。左键使用时只用物品，不像右键那样先和方块、实体交互；按住会像右键一样连续使用。按住使用时松开使用键照旧（投掷物扔出），单独的取消键直接取消、不扔出，为此取消包（原来只收切换模式的消耗品）改为收所有消耗品与投掷物，与切格子中断使用的效果相同。进度条下的取消提示跟着设置走。按住 TaCZ 的交互键时两个键都照原版。近战武器与闪光盾左右键本来各有动作，不在此列 |
+| 说明只有中文，从英文页面点进来的读者看不懂（`decade.8`） | — | 开头加英文摘要。代码与 `decade.7` 相同，只改了版本号 |
 
 ## 已知但未修
 
