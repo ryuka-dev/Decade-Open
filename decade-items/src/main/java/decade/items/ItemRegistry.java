@@ -39,6 +39,13 @@ public final class ItemRegistry {
     public static final RegistryObject<Item> RIFLED_BARREL = ITEMS.register("rifled_barrel", () -> new Item(new Item.Properties()));
 
     /**
+     * What a nest's core leaves when it is taken out: only nests give it, the recycling station buys it, later a
+     * material for medical works. A plain item; who gets one and what it is worth is the server's (decade_director,
+     * the decade-balance datapack).
+     */
+    public static final RegistryObject<Item> NEST_CORE = ITEMS.register("nest_core", () -> new Item(new Item.Properties()));
+
+    /**
      * The specialty registration desk in Decade City: a public fixture, so nobody breaks it in survival
      * (admins place and remove it). Right-clicking it is handled by decade_specialty by this name.
      */
