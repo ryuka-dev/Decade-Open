@@ -11,8 +11,11 @@
   "item.decade.optics": "Optics",
   "item.decade.precision_spring": "Precision Spring",
   "item.decade.nest_core": "Nest Core",
+  "effect.decade.disguised": "Disguised",
   "item.decade.rifled_barrel": "Rifled Barrel",
   "block.decade.specialty_desk": "Specialty Registry",
   "block.decade.workstation": "Workstation",
-  "block.decade.armory": "Armory"
+  "block.decade.armory": "Armory",
+  "block.decade.stall": "Stall",
+  "block.decade.stall_filler": "Stall"
 }

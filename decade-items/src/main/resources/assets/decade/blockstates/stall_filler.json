@@ -1,0 +1,5 @@
+{
+  "multipart": [
+    {"apply": {"model": "decade:block/stall_filler"}}
+  ]
+}
