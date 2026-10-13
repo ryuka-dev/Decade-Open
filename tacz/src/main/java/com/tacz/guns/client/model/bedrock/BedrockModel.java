@@ -71,12 +71,23 @@ public class BedrockModel {
         modelRenderer.setInitRotationAngle(x, y, z);
     }
 
+    /**
+     * Decade: a tiny extra inflate for the n-th cube of a model, 0 to 0.0009 pixels in 16 steps (README-DECADE.md,
+     * decade.14). Faces of different cubes that lie in one plane otherwise sit at exactly the same depth and flicker
+     * against each other; with a step in between, the same one is always in front. The steps stay below the 0.001 that
+     * model makers already leave between parts, so they never undo a gap that was there on purpose.
+     */
+    private static float depthNudge(int cube) {
+        return ((cube * 0x9E3779B1) >>> 28) * 6.0e-5f;
+    }
+
     protected void loadNewModel(BedrockModelPOJO pojo) {
         assert pojo.getGeometryModelNew() != null;
         pojo.getGeometryModelNew().deco();
         if (pojo.getGeometryModelNew().getBones() == null) {
             return;
         }
+        int cubeIndex = 0; // Decade: counts cubes for depthNudge
         Description description = pojo.getGeometryModelNew().getDescription();
         // 材质的长度、宽度
         int texWidth = description.getTextureWidth();
@@ -145,7 +156,7 @@ public class BedrockModel {
                 List<Float> size = cube.getSize();
                 @Nullable List<Float> cubeRotation = cube.getRotation();
                 boolean mirror = cube.isMirror();
-                float inflate = cube.getInflate();
+                float inflate = cube.getInflate() + depthNudge(cubeIndex++); // Decade: see depthNudge
 
                 // 当做普通 cube 存入
                 if (cubeRotation == null) {
@@ -191,6 +202,7 @@ public class BedrockModel {
         if (pojo.getGeometryModelLegacy().getBones() == null) {
             return;
         }
+        int cubeIndex = 0; // Decade: counts cubes for depthNudge
 
         // 材质的长度、宽度
         int texWidth = pojo.getGeometryModelLegacy().getTextureWidth();
@@ -254,7 +266,7 @@ public class BedrockModel {
                 List<Float> uv = cube.getUv();
                 List<Float> size = cube.getSize();
                 boolean mirror = cube.isMirror();
-                float inflate = cube.getInflate();
+                float inflate = cube.getInflate() + depthNudge(cubeIndex++); // Decade: see depthNudge
 
                 model.cubes.add(new BedrockCubeBox(uv.get(0), uv.get(1),
                         convertOrigin(bones, cube, 0), convertOrigin(bones, cube, 1), convertOrigin(bones, cube, 2),
