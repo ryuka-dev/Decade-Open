@@ -1,0 +1,53 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "GPL-3.0" # Decade: the repository's LICENSE and the published 1.0.1 jar say GPL-3.0
+issueTrackerURL = "https://example.invalid/issues"
+
+[[mods]]
+modId = "modernhud"
+version = "${version}"
+displayName = "Modern HUD"
+authors = "Lanixius, AS12 (Decade modifications: ryuka-dev)"
+# Works fine installed on only one side, but a few features (the shield-break
+# hit/break feedback for OTHER entities) only fire if the server also has the
+# mod. Never show a red X either way.
+displayTest = "IGNORE_ALL_VERSION"
+description = '''
+Modern HUD is a lightweight, FPS-shooter-inspired HUD overhaul built on
+vanilla mechanics only - no new items, blocks, or ores.
+
+- Personal status widget: head, name, Absorption/health/armor bars, and
+  an HP readout (classic or percent) - anchored to any corner, scalable.
+- Private hit/break feedback: sound + icon shown only to the attacker
+  and victim, never broadcast to others nearby.
+- Team HUD: a compact head/name/health row per scoreboard teammate.
+- Optional TACZ weapon widget (only if TACZ is installed): a fixed
+  Call-of-Duty-style icon + fire-mode icons + mag/reserve ammo readout,
+  plus a pulsing centre-screen ammo alert. TACZ's own gun HUD is turned
+  off automatically so the two never overlap.
+
+All settings live in the three config/ .toml files this mod generates;
+a config-screen mod (e.g. Forge Config API Port) will render them
+in-game automatically if installed.
+'''
+
+[[dependencies.modernhud]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[47,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.modernhud]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.20.1,1.21)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.modernhud]]
+    modId = "tacz"
+    mandatory = false
+    versionRange = "[1.0,)"
+    ordering = "AFTER"
+    side = "BOTH"

@@ -1,0 +1,10 @@
+{
+  "modernhud.hud.fire_type": "射击模式：",
+  "modernhud.hud.fire_mode.semi": "半自动",
+  "modernhud.hud.fire_mode.auto": "全自动",
+  "modernhud.hud.fire_mode.burst": "点射",
+  "modernhud.hud.reload": "换弹",
+  "modernhud.hud.no_ammo": "弹药耗尽",
+  "modernhud.hud.low_ammo": "弹药不足",
+  "modernhud.hud.jammed": "卡壳"
+}

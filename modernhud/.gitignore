@@ -1,0 +1,4 @@
+# Decade: build outputs stay local
+/.gradle/
+/build/
+/run/

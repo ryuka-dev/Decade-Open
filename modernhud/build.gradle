@@ -1,0 +1,85 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = '1.0.1-decade.1'
+group = 'cc.xypp.modernhud'
+
+base {
+    archivesName = 'modernhud'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// Decade: the sources carry UTF-8 punctuation in comments; javac on a Chinese Windows reads GBK otherwise
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+// No access transformer needed: this mod has no mixins and touches no
+// private vanilla fields/methods.
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                modernhud {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                modernhud {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.20'
+
+    // TACZ binary, compileOnly and WITHOUT fg.deobf: we only reference TACZ's own unobfuscated
+    // API (com.tacz.* — GunShootEvent, IGun) with vanilla types in signatures, so javac resolves
+    // against the raw CurseForge jar. Gun detection is a soft runtime dependency.
+    compileOnly 'curse.maven:timeless-and-classics-zero-1028108:8055552'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.version
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'   : 'modernhud',
+            'Specification-Vendor'  : 'modernhud',
+            'Specification-Version' : '1',
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': project.version,
+            'Implementation-Vendor' : 'modernhud'
+        ])
+    }
+}

@@ -8,7 +8,7 @@
 | `lrtactical/` | 0.4.3-decade.8 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
 | `decade-items/` | 0.1.17 | — (own mod · 自制) |
 | `automodpack/` | 4.0.6-decade.9 | https://github.com/Skidamek/AutoModpack |
-| `modernhud/` | not released yet · 尚未发布 | https://github.com/AquaticShelter/ModernHudZero |
+| `modernhud/` | 1.0.1-decade.1 | https://github.com/AquaticShelter/ModernHudZero |
 
 ## English
 

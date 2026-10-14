@@ -1,0 +1,14 @@
+{
+  "absorption_break": {
+    "subtitle": "subtitles.modernhud.absorption_break",
+    "sounds": [
+      "modernhud:break"
+    ]
+  },
+  "armor_hit": {
+    "subtitle": "subtitles.modernhud.armor_hit",
+    "sounds": [
+      "modernhud:armor_hit"
+    ]
+  }
+}
