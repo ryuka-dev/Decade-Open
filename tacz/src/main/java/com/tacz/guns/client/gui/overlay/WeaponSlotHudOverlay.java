@@ -30,6 +30,7 @@ import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
+import java.util.function.IntSupplier;
 
 /**
  * Decade: the bottom-right gun HUD once the server has said which hotbar slots guns work in
@@ -89,7 +90,23 @@ public class WeaponSlotHudOverlay implements IGuiOverlay {
      */
     public static int heightFromBottom(Minecraft mc) {
         int slots = shownSlots(mc);
-        return slots == 0 ? 0 : MARGIN + slots * ROW_HEIGHT + (slots - 1) * ROW_GAP;
+        int own = slots == 0 ? 0 : MARGIN + slots * ROW_HEIGHT + (slots - 1) * ROW_GAP;
+        IntSupplier other = otherBottomRight;
+        if (other == null) {
+            return own;
+        }
+        try {
+            return Math.max(own, other.getAsInt());
+        } catch (RuntimeException e) {
+            return own;
+        }
+    }
+
+    /** Decade: another mod's HUD in the same corner (HudHeightMessages); the subtitles clear the taller of the two. */
+    private static volatile IntSupplier otherBottomRight;
+
+    public static void reserveBottomRight(IntSupplier height) {
+        otherBottomRight = height;
     }
 
     @Override
