@@ -3,6 +3,7 @@ package com.tacz.guns.config.util;
 import com.google.common.collect.Lists;
 import com.tacz.guns.GunMod;
 import com.tacz.guns.config.sync.SyncConfig;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -16,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class InteractKeyConfigRead {
     private static final EnumMap<Type, List<ResourceLocation>> WHITELIST = new EnumMap<>(Type.class);
@@ -24,6 +28,36 @@ public class InteractKeyConfigRead {
     private static final TagKey<Block> BLACKLIST_BLOCKS = BlockTags.create(new ResourceLocation(GunMod.MOD_ID, "interact_key/blacklist"));
     private static final TagKey<EntityType<?>> WHITELIST_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(GunMod.MOD_ID, "interact_key/whitelist"));
     private static final TagKey<EntityType<?>> BLACKLIST_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(GunMod.MOD_ID, "interact_key/blacklist"));
+
+    // Decade: rules other mods register by inter-mod message (InteractRuleMessages): a block by where it is, an entity by
+    // what it is. Asked after the blacklists and before the whitelists, so a blacklist still wins
+    private static final List<BiPredicate<BlockPos, BlockState>> BLOCK_RULES = new CopyOnWriteArrayList<>();
+    private static final List<Predicate<Entity>> ENTITY_RULES = new CopyOnWriteArrayList<>();
+
+    // Decade
+    public static void addBlockRule(BiPredicate<BlockPos, BlockState> rule) {
+        BLOCK_RULES.add(rule);
+    }
+
+    // Decade
+    public static void addEntityRule(Predicate<Entity> rule) {
+        ENTITY_RULES.add(rule);
+    }
+
+    // Decade: the block where it is, so a rule can tell a marked container from the same block elsewhere
+    public static boolean canInteractBlock(BlockPos pos, BlockState block) {
+        ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(block.getBlock());
+        if (blockId == null || BLACKLIST.containsKey(Type.BLOCK) && BLACKLIST.get(Type.BLOCK).contains(blockId)
+                || block.is(BLACKLIST_BLOCKS)) {
+            return false;
+        }
+        for (BiPredicate<BlockPos, BlockState> rule : BLOCK_RULES) {
+            if (rule.test(pos, block)) {
+                return true;
+            }
+        }
+        return canInteractBlock(block);
+    }
 
     public static void init() {
         WHITELIST.clear();
@@ -64,6 +98,12 @@ public class InteractKeyConfigRead {
         }
         if (entity.getType().is(BLACKLIST_ENTITIES)) {
             return false;
+        }
+        // Decade
+        for (Predicate<Entity> rule : ENTITY_RULES) {
+            if (rule.test(entity)) {
+                return true;
+            }
         }
         // 再检查白名单
         if (WHITELIST.containsKey(Type.ENTITY) && WHITELIST.get(Type.ENTITY).contains(entityId)) {

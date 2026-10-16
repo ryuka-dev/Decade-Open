@@ -98,7 +98,7 @@ public class InteractKey {
     private static void interactBlock(BlockHitResult blockHitResult, LocalPlayer player, Minecraft mc) {
         BlockPos blockPos = blockHitResult.getBlockPos();
         BlockState block = player.level().getBlockState(blockPos);
-        if (InteractKeyConfigRead.canInteractBlock(block)) {
+        if (InteractKeyConfigRead.canInteractBlock(blockPos, block)) { // Decade: with where it is
             mc.startUseItem();
         }
     }

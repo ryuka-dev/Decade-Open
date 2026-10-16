@@ -53,7 +53,7 @@ public class InteractKeyTextOverlay implements IGuiOverlay {
     private static void renderBlockText(GuiGraphics graphics, int width, int height, BlockHitResult blockHitResult, LocalPlayer player, Minecraft mc) {
         BlockPos blockPos = blockHitResult.getBlockPos();
         BlockState block = player.level().getBlockState(blockPos);
-        if (InteractKeyConfigRead.canInteractBlock(block)) {
+        if (InteractKeyConfigRead.canInteractBlock(blockPos, block)) { // Decade: with where it is
             boolean mainHandHoldGun = IGun.mainHandHoldGun(player);
             boolean hasGunSmithTableFilterItem = hasGunSmithTableFilterItem(block, player);
             boolean willFilterByHand = RenderConfig.AUTO_SELECT_GUN_SMITH_TABLE_FILTER.get() && hasGunSmithTableFilterItem;
