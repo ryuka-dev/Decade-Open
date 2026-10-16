@@ -89,6 +89,8 @@ public final class ItemRegistry {
     public static final RegistryObject<Item> OPTICS = ITEMS.register("optics", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> PRECISION_SPRING = ITEMS.register("precision_spring", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> RIFLED_BARREL = ITEMS.register("rifled_barrel", () -> new Item(new Item.Properties()));
+    /** Made from civil parts and taken by regular ammunition, so rounds cost a little scavenging too. */
+    public static final RegistryObject<Item> PRIMER = ITEMS.register("primer", () -> new Item(new Item.Properties()));
 
     /**
      * What a nest's core leaves when it is taken out: only nests give it, the recycling station buys it, later a
