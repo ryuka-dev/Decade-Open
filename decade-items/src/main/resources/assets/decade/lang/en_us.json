@@ -18,5 +18,8 @@
   "block.decade.workstation": "Workstation",
   "block.decade.armory": "Armory",
   "block.decade.stall": "Stall",
-  "block.decade.stall_filler": "Stall"
+  "block.decade.stall_filler": "Stall",
+  "block.decade.salvage_bench": "Salvage Bench",
+  "block.decade.salvage_bench_half": "Salvage Bench",
+  "block.decade.recycle_station": "Recycling Station"
 }

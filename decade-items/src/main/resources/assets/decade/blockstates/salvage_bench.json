@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sa_core:block/recycler"
+    },
+    "facing=east": {
+      "model": "sa_core:block/recycler",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sa_core:block/recycler",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sa_core:block/recycler",
+      "y": 270
+    }
+  }
+}

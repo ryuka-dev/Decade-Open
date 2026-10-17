@@ -1,6 +1,8 @@
 package decade.items;
 
 import decade.items.block.FixtureBlock;
+import decade.items.block.SalvageBenchBlock;
+import decade.items.block.SalvageBenchHalfBlock;
 import decade.items.block.StallBlock;
 import decade.items.block.StallBlockEntity;
 import decade.items.block.StallFillerBlock;
@@ -127,6 +129,32 @@ public final class ItemRegistry {
                     .noOcclusion().noLootTable().pushReaction(PushReaction.BLOCK)));
     public static final RegistryObject<Item> ARMORY_ITEM = ITEMS.register("armory",
             () -> new BlockItem(ARMORY.get(), new Item.Properties()));
+
+    /**
+     * The public salvage bench in Decade City: a fixture like the armory, admins place and remove it. It wears
+     * Survivor's Arsenal's recycler model, two blocks wide, so it comes with an invisible second half. Each player who
+     * opens it sees their own; what it takes apart, how long it takes and what it costs are decade_economy's, by this name.
+     */
+    public static final RegistryObject<Block> SALVAGE_BENCH = BLOCKS.register("salvage_bench", () -> new SalvageBenchBlock(
+            Block.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(-1.0F, 3_600_000.0F)
+                    .noOcclusion().noLootTable().pushReaction(PushReaction.BLOCK)));
+    public static final RegistryObject<Item> SALVAGE_BENCH_ITEM = ITEMS.register("salvage_bench",
+            () -> new BlockItem(SALVAGE_BENCH.get(), new Item.Properties()));
+    /** The salvage bench's invisible second half; no item, it comes with the bench. */
+    public static final RegistryObject<Block> SALVAGE_BENCH_HALF = BLOCKS.register("salvage_bench_half",
+            () -> new SalvageBenchHalfBlock(Block.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL)
+                    .strength(-1.0F, 3_600_000.0F).noOcclusion().noLootTable().pushReaction(PushReaction.BLOCK)));
+
+    /**
+     * The recycling station in Decade City: a fixture wearing Survivor's Arsenal's cash register. Selling to it is
+     * decade_economy's, by this name; only admins place it, so the block itself says where the station is.
+     */
+    public static final RegistryObject<Block> RECYCLE_STATION = BLOCKS.register("recycle_station", () -> new FixtureBlock(
+            Block.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(-1.0F, 3_600_000.0F)
+                    .noOcclusion().noLootTable().pushReaction(PushReaction.BLOCK),
+            Block.box(2, 0, 2, 14, 13, 14)));
+    public static final RegistryObject<Item> RECYCLE_STATION_ITEM = ITEMS.register("recycle_station",
+            () -> new BlockItem(RECYCLE_STATION.get(), new Item.Properties()));
 
     /**
      * A stall in Decade City: a 3×2 booth drawn from the parts its block entity names, the

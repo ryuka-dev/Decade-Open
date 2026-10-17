@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sa_decor:block/cash_register/cash_register_machine"
+    },
+    "facing=east": {
+      "model": "sa_decor:block/cash_register/cash_register_machine",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sa_decor:block/cash_register/cash_register_machine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sa_decor:block/cash_register/cash_register_machine",
+      "y": 270
+    }
+  }
+}

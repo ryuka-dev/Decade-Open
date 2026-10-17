@@ -18,5 +18,8 @@
   "block.decade.workstation": "制作站",
   "block.decade.armory": "军火台",
   "block.decade.stall": "摊位",
-  "block.decade.stall_filler": "摊位"
+  "block.decade.stall_filler": "摊位",
+  "block.decade.salvage_bench": "拆解台",
+  "block.decade.salvage_bench_half": "拆解台",
+  "block.decade.recycle_station": "回收站"
 }
