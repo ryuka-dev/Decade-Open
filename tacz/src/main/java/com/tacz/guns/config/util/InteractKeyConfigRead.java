@@ -33,10 +33,24 @@ public class InteractKeyConfigRead {
     // what it is. Asked after the blacklists and before the whitelists, so a blacklist still wins
     private static final List<BiPredicate<BlockPos, BlockState>> BLOCK_RULES = new CopyOnWriteArrayList<>();
     private static final List<Predicate<Entity>> ENTITY_RULES = new CopyOnWriteArrayList<>();
+    // Decade: vetoes, asked right after the blacklists: a block or an entity a veto names is never reached, whatever the
+    // rules and the whitelists say (a ruin's furnace the server refuses there, decade.17)
+    private static final List<BiPredicate<BlockPos, BlockState>> BLOCK_VETOES = new CopyOnWriteArrayList<>();
+    private static final List<Predicate<Entity>> ENTITY_VETOES = new CopyOnWriteArrayList<>();
 
     // Decade
     public static void addBlockRule(BiPredicate<BlockPos, BlockState> rule) {
         BLOCK_RULES.add(rule);
+    }
+
+    // Decade
+    public static void addBlockVeto(BiPredicate<BlockPos, BlockState> veto) {
+        BLOCK_VETOES.add(veto);
+    }
+
+    // Decade
+    public static void addEntityVeto(Predicate<Entity> veto) {
+        ENTITY_VETOES.add(veto);
     }
 
     // Decade
@@ -50,6 +64,11 @@ public class InteractKeyConfigRead {
         if (blockId == null || BLACKLIST.containsKey(Type.BLOCK) && BLACKLIST.get(Type.BLOCK).contains(blockId)
                 || block.is(BLACKLIST_BLOCKS)) {
             return false;
+        }
+        for (BiPredicate<BlockPos, BlockState> veto : BLOCK_VETOES) {
+            if (veto.test(pos, block)) {
+                return false;
+            }
         }
         for (BiPredicate<BlockPos, BlockState> rule : BLOCK_RULES) {
             if (rule.test(pos, block)) {
@@ -100,6 +119,11 @@ public class InteractKeyConfigRead {
             return false;
         }
         // Decade
+        for (Predicate<Entity> veto : ENTITY_VETOES) {
+            if (veto.test(entity)) {
+                return false;
+            }
+        }
         for (Predicate<Entity> rule : ENTITY_RULES) {
             if (rule.test(entity)) {
                 return true;
