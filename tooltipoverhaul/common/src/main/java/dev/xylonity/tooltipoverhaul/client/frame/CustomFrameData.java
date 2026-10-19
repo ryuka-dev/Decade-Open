@@ -1,0 +1,442 @@
+package dev.xylonity.tooltipoverhaul.client.frame;
+
+import dev.xylonity.tooltipoverhaul.client.render.TooltipContext;
+import dev.xylonity.tooltipoverhaul.client.style.effect.internal.EffectSettings;
+import dev.xylonity.tooltipoverhaul.client.util.ColorUtils;
+import dev.xylonity.tooltipoverhaul.client.util.Palette;
+import dev.xylonity.tooltipoverhaul.config.TooltipsConfig;
+import dev.xylonity.tooltipoverhaul.config.parser.ConfigColorParser;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public record CustomFrameData(
+        int priority,
+        FrameConditions conditions,
+        EffectSettings effectSettings,
+        List<String> items,
+        List<String> tags,
+        Optional<String> namespace,
+        List<String> rarities,
+        Optional<String> texture,
+        Optional<Integer> backgroundColor,
+        Optional<String> borderType,
+        Optional<String> innerFrameCornerType,
+        Optional<String> backgroundCornerType,
+        Optional<GradientType> gradientType,
+        Optional<List<String>> gradientColors,
+        Optional<String> itemRating,
+        Optional<String> colorItemRating,
+        Optional<String> ratingAlignment,
+        Optional<String> titleAlignment,
+        Optional<Boolean> alignmentIgnoresIcon,
+        Optional<String> tooltipLayout,
+        Optional<Boolean> compactShowModName,
+        Optional<String> compactModNameColor,
+        Optional<Integer> tooltipPositionX,
+        Optional<Integer> tooltipPositionY,
+        Optional<Integer> mainPanelPaddingX,
+        Optional<Integer> mainPanelPaddingY,
+        Optional<Integer> dividerLineTopPadding,
+        Optional<Integer> dividerLineBottomPadding,
+        Optional<Float> iconSize,
+        Optional<Float> iconRotatingSpeed,
+        Optional<String> iconAppearAnimation,
+        Optional<String> tooltipAppearAnimation,
+        Optional<String> tooltipDisappearAnimation,
+        Optional<Float> tooltipAnimationDuration,
+        Optional<Integer> secondPanelX,
+        Optional<Integer> secondPanelY,
+        Optional<Integer> secondPanelSizeX,
+        Optional<Integer> secondPanelSizeY,
+        Optional<Float> secondPanelRendererSpeed,
+        Optional<String> dividerLineType,
+        Optional<String> dividerLineColor,
+        Optional<String> particles,
+        Optional<String> specialEffect,
+        List<String> vignettes,
+        Optional<String> iconBackgroundType,
+        Optional<String> iconBorderStyle,
+        Optional<String> iconBackgroundColor,
+        Optional<String> iconBorderColor,
+        Optional<Boolean> usePlayerSkinInPreview,
+        Optional<String> previewPanelModel,
+        Optional<String> previewPanelSideTriangles,
+        Optional<String> previewPanelCornerType,
+        Optional<String> previewPanelBackgroundCornerType,
+        Optional<Boolean> showSecondPanel,
+        Optional<Boolean> showRating,
+        Optional<Boolean> showShadow,
+        Optional<Boolean> effectsBehindText,
+        Optional<Boolean> disableIcon,
+        Optional<Boolean> disableScrolling,
+        Optional<Boolean> disableTooltip,
+        Optional<Boolean> disableDividerLine
+) {
+
+    public String getTextureLocation() {
+        return texture.filter(t -> !t.trim().isEmpty()).orElse(TooltipsConfig.GLOBAL_FRAME_OVERLAY_LOCATION);
+    }
+
+    public String getPreviewPanelSideTriangles() {
+        return previewPanelSideTriangles.orElse(TooltipsConfig.PREVIEW_PANEL_SIDE_TRIANGLES);
+    }
+
+    public String getPreviewPanelCornerType() {
+        return previewPanelCornerType.orElse(TooltipsConfig.PREVIEW_PANEL_CORNER_TYPE);
+    }
+
+    public String getPreviewPanelBackgroundCornerType() {
+        return previewPanelBackgroundCornerType.orElse(TooltipsConfig.PREVIEW_PANEL_BACKGROUND_CORNER_TYPE);
+    }
+
+    public String getBorderType() {
+        return borderType.orElse(TooltipsConfig.DEFAULT_INNER_OVERLAY_TYPE);
+    }
+
+    public String getInnerFrameCornerType() {
+        return innerFrameCornerType.orElse(TooltipsConfig.INNER_FRAME_CORNER_TYPE);
+    }
+
+    public String getBackgroundCornerType() {
+        return backgroundCornerType.orElse(TooltipsConfig.BACKGROUND_CORNER_TYPE);
+    }
+
+    public GradientType getGradientType() {
+        return gradientType.orElse(GradientType.COMMON);
+    }
+
+    public boolean hasGradientColors() {
+        return gradientColors.isPresent();
+    }
+
+    public int[] getGradientColors(TooltipContext context) {
+        return gradientColors
+                .map(list -> {
+                    final int length = Math.min(3, list.size());
+                    if (length == 0) {
+                        return new int[0];
+                    }
+
+                    final int[] array = new int[3];
+                    int last = 0;
+                    for (int i = 0; i < length; i++) {
+                        String key = list.get(i);
+                        if (key == null || key.isBlank()) {
+                            continue;
+                        }
+
+                        last = ConfigColorParser.parseColor(key.trim());
+                        array[i] = last;
+                    }
+
+                    for (int i = length; i < 3; i++) {
+                        array[i] = last;
+                    }
+
+                    return array;
+                })
+                .orElseGet(() -> Arrays.copyOf(ColorUtils.getColorsPerRarity(context), 3));
+    }
+
+    public String getItemRating(ItemStack stack) {
+        return itemRating.filter(rating -> !rating.trim().isEmpty()).orElse("W");
+    }
+
+    public int getItemRatingColor(TooltipContext context) {
+        return colorItemRating.map(ConfigColorParser::parseColor).orElseGet(() -> ColorUtils.getFirstColorOfRarity(context));
+    }
+
+    public boolean shouldDisableDividerLine() {
+        return disableDividerLine.orElse(TooltipsConfig.DISABLE_DIVIDER_LINE);
+    }
+
+    public boolean shouldDisableTooltip() {
+        return disableTooltip.orElse(false);
+    }
+
+    public String getIconAppearAnimation() {
+        return iconAppearAnimation.orElse(TooltipsConfig.ICON_APPEAR_ANIMATION);
+    }
+
+    public String getTooltipAppearAnimation() {
+        return tooltipAppearAnimation.orElse(TooltipsConfig.TOOLTIP_APPEAR_ANIMATION);
+    }
+
+    /**
+     * May return match_appear which the animator resolves to the appear animation
+     */
+    public String getTooltipDisappearAnimation() {
+        return tooltipDisappearAnimation.orElse(TooltipsConfig.TOOLTIP_DISAPPEAR_ANIMATION);
+    }
+
+    public float getTooltipAnimationDuration() {
+        return tooltipAnimationDuration.orElse(TooltipsConfig.TOOLTIP_ANIMATION_DURATION);
+    }
+
+    public String getIconBackground() {
+        return iconBackgroundType.orElse(TooltipsConfig.ICON_BACKGROUND_TYPE);
+    }
+
+    public String getIconBorderStyle() {
+        return iconBorderStyle.orElse(TooltipsConfig.ICON_BORDER_STYLE);
+    }
+
+    public String getIconBackgroundColor() {
+        return iconBackgroundColor.orElse(TooltipsConfig.ICON_BACKGROUND_COLOR);
+    }
+
+    public String getIconBorderColor() {
+        return iconBorderColor.orElse(TooltipsConfig.ICON_BORDER_COLOR);
+    }
+
+    public float getIconSize() {
+        return iconSize.orElse(1f);
+    }
+
+    public boolean hasVignette() {
+        return !vignettes.isEmpty();
+    }
+
+    public float getIconRotatingSpeed() {
+        return iconRotatingSpeed.orElse(TooltipsConfig.ICON_ROTATING_SPEED);
+    }
+
+    public boolean getUsePlayerSkinInPreview() {
+        return usePlayerSkinInPreview.orElse(TooltipsConfig.USE_PLAYER_SKIN_IN_PREVIEW);
+    }
+
+    public String getDividerLineType() {
+        return dividerLineType.orElse(TooltipsConfig.DIVIDER_LINE_TYPE);
+    }
+
+    public String getPreviewPanelModel() {
+        return previewPanelModel.orElse(TooltipsConfig.PREVIEW_PANEL_MODEL);
+    }
+
+    public int getDividerLineTopPadding() {
+        return dividerLineTopPadding.orElse(TooltipsConfig.DIVIDER_LINE_TOP_PADDING);
+    }
+
+    public int getDividerLineBottomPadding() {
+        return dividerLineBottomPadding.orElse(TooltipsConfig.DIVIDER_LINE_BOTTOM_PADDING);
+    }
+
+    public int getTooltipPositionX() {
+        return tooltipPositionX.orElse(TooltipsConfig.TOOLTIP_POSITION_X);
+    }
+
+    public int getTooltipPositionY() {
+        return tooltipPositionY.orElse(TooltipsConfig.TOOLTIP_POSITION_Y);
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor.orElse(Palette.PANEL_BG);
+    }
+
+    public boolean shouldDisableScrolling() {
+        return disableScrolling.orElse(TooltipsConfig.DISABLE_TOOLTIP_SCROLLING);
+    }
+
+    public boolean shouldShowShadow() {
+        return showShadow.orElse(TooltipsConfig.SHOW_TOOLTIP_SHADOW);
+    }
+
+    public boolean shouldRenderEffectsBehindText() {
+        return effectsBehindText.orElse(TooltipsConfig.EFFECTS_BEHIND_TEXT);
+    }
+
+    public int getSecondPanelX() {
+        return secondPanelX.orElse(TooltipsConfig.SECOND_PANEL_X);
+    }
+
+    public int getSecondPanelY() {
+        return secondPanelY.orElse(TooltipsConfig.SECOND_PANEL_Y);
+    }
+
+    public int getSecondPanelSizeX() {
+        return secondPanelSizeX.orElse(TooltipsConfig.SECOND_PANEL_SIZE_X);
+    }
+
+    public int getSecondPanelSizeY() {
+        return secondPanelSizeY.orElse(TooltipsConfig.SECOND_PANEL_SIZE_Y);
+    }
+
+    public String getRatingAlignment() {
+        return ratingAlignment.orElse(TooltipsConfig.RATING_X_ALIGNMENT);
+    }
+
+    public String getTitleAlignment() {
+        return titleAlignment.orElse(TooltipsConfig.TITLE_X_ALIGNMENT);
+    }
+
+    public boolean shouldAlignmentIgnoreIcon() {
+        return alignmentIgnoresIcon.orElse(TooltipsConfig.ALIGNMENT_IGNORES_ICON);
+    }
+
+    public String getTooltipLayout() {
+        return tooltipLayout.orElse(TooltipsConfig.TOOLTIP_LAYOUT);
+    }
+
+    public boolean shouldShowCompactModName() {
+        return compactShowModName.orElse(TooltipsConfig.COMPACT_SHOW_MOD_NAME);
+    }
+
+    public String getCompactModNameColor() {
+        return compactModNameColor.orElse(TooltipsConfig.COMPACT_MOD_NAME_COLOR);
+    }
+
+    public float getSecondPanelRendererSpeed() {
+        return secondPanelRendererSpeed.orElse(TooltipsConfig.SECOND_PANEL_RENDERER_SPEED);
+    }
+
+    public String getEffect() {
+        return specialEffect.orElse(TooltipsConfig.EFFECTS);
+    }
+
+    public List<ResourceLocation> getItemLocations() {
+        return items.stream().map(ResourceLocation::new).collect(Collectors.toList());
+    }
+
+    public List<TagKey<Item>> getTagKeys() {
+        return tags.stream().map(name -> TagKey.create(Registries.ITEM, new ResourceLocation(name))).collect(Collectors.toList());
+    }
+
+    public boolean matches(ItemStack stack) {
+        return matchScore(stack) > 0;
+    }
+
+    /**
+     * Specificity of the match.
+     * 0 no match, and the higher wins, so 4 item, 3 tag, 2 namespace (including *), 1 rarity
+     */
+    public int matchScore(ItemStack stack) {
+        if (!conditions.matches(stack)) {
+            return 0;
+        }
+
+        final ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (items.contains(key.toString())) {
+            return 4;
+        }
+
+        for (TagKey<Item> tagKey : getTagKeys()) {
+            if (stack.is(tagKey)) {
+                return 3;
+            }
+
+        }
+
+        if (namespace.isPresent()) {
+            final String namespace = this.namespace.get().trim();
+            if (!namespace.isEmpty()) {
+                if (namespace.equals("*") || namespace.equalsIgnoreCase("all")) {
+                    return 2;
+                }
+
+                if (key.getNamespace().equals(namespace)) {
+                    return 2;
+                }
+
+            }
+
+        }
+
+        return matchesRarity(stack) ? 1 : 0;
+    }
+
+    private boolean matchesRarity(ItemStack stack) {
+        if (rarities.isEmpty()) {
+            return false;
+        }
+
+        try {
+            final Rarity rarity = stack.getRarity();
+            // Compares by string instead of enum as it may crash on certain enum injections (as it has happened before)
+            final String name = rarity.name().trim();
+            final String rawName = rarity.toString().trim();
+            for (final String candidate : rarities) {
+                final String trimmedCandidate = candidate.trim();
+                if (trimmedCandidate.isEmpty()) {
+                    continue;
+                }
+
+                if (name.equalsIgnoreCase(trimmedCandidate) || rawName.equalsIgnoreCase(trimmedCandidate)) {
+                    return true;
+                }
+
+            }
+
+        }
+        catch (Throwable ignored) {
+            ;;
+        }
+
+        return false;
+    }
+
+    public int getMainPanelPaddingX() {
+        return mainPanelPaddingX.orElse(TooltipsConfig.MAIN_PANEL_PADDING_X);
+    }
+
+    public int getMainPanelPaddingY() {
+        return mainPanelPaddingY.orElse(TooltipsConfig.MAIN_PANEL_PADDING_Y);
+    }
+
+    public String getDividerLineColor() {
+        return dividerLineColor.orElse(TooltipsConfig.DIVIDER_LINE_COLOR);
+    }
+
+    public boolean hasCustomTexture() {
+        return texture.isPresent() && !texture.get().trim().isEmpty();
+    }
+
+    public boolean hasCustomItemRating() {
+        return itemRating.isPresent() && !itemRating.get().trim().isEmpty();
+    }
+
+    public boolean shouldShowRating() {
+        return showRating.orElse(TooltipsConfig.SHOW_RATING);
+    }
+
+    public boolean shouldDisableIcon() {
+        return disableIcon.orElse(TooltipsConfig.DISABLE_ICON);
+    }
+
+    public boolean shouldShowSecondPanel(TooltipContext context) {
+        return shouldShowSecondPanel(context.getStack());
+    }
+
+    public boolean shouldShowSecondPanel(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        return showSecondPanel.orElseGet(() -> stack.getItem() instanceof ArmorItem ? TooltipsConfig.ARMOR_ITEMS_RENDERER
+                : stack.getItem() instanceof TieredItem && TooltipsConfig.TIERED_ITEMS_RENDERER);
+    }
+
+    public boolean hasCustomColorItemRating() {
+        return colorItemRating.isPresent();
+    }
+
+    public enum GradientType {
+
+        COMMON,
+        UNCOMMON,
+        RARE,
+        EPIC,
+        LEGENDARY,
+        CHAOS,
+        CUSTOM_RARITY,
+        CUSTOM
+    }
+
+}

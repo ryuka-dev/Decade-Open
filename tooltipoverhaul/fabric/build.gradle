@@ -1,0 +1,171 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'net.darkhax.curseforgegradle' version '1.1.26'
+    id "com.modrinth.minotaur" version "2.+"
+}
+
+repositories {
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+
+    shadow("com.electronwill.night-config:toml:3.6.6")
+    modCompileOnlyApi "mezz.jei:jei-${minecraft_version}-fabric-api:15.20.0.106"
+    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:15.20.0.106"
+
+    modCompileOnly "dev.emi:emi-fabric:1.1.22+1.20.1:api"
+    modLocalRuntime "dev.emi:emi-fabric:1.1.22+1.20.1"
+
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+
+    modImplementation("com.terraformersmc:modmenu:7.2.2")
+
+    implementation project(":common")
+}
+
+configurations {
+    shadow
+    implementation.extendsFrom shadow
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.fabricmc.loom.task.RemapJarTask
+
+import java.util.regex.Pattern
+
+def shadowJarTask = tasks.named('shadowJar', ShadowJar)
+
+shadowJarTask.configure {
+    archiveClassifier.set('dev-shadow')
+    configurations = [project.configurations.shadow]
+
+    relocate 'com.electronwill.nightconfig', "dev.xylonity.tooltipoverhaul.nightconfig"
+
+    exclude 'META-INF/LICENSE*', 'META-INF/NOTICE*'
+}
+
+tasks.named('remapJar', RemapJarTask).configure { remap ->
+    dependsOn shadowJarTask
+
+    inputFile.set(shadowJarTask.flatMap { it.archiveFile })
+
+    archiveClassifier.set('')
+}
+
+loom {
+    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+    }
+}
+
+def extractChangelogForVersion = { File file, String version ->
+    if (!file || !file.exists()) {
+        return null
+    }
+
+    def lines = file.getText('UTF-8').readLines()
+    if (lines.isEmpty()) return null
+    lines[0] = lines[0].replaceFirst('^\\uFEFF', '')
+
+    def lead = '^\\s*#{1,6}\\s*'
+    def ver  = Pattern.quote(version)
+
+    def headerPattern = Pattern.compile(lead + '[vV]?' + ver + '\\b.*\\s*$')
+    def nextHeaderPattern = Pattern.compile(lead + '[vV]?\\d+\\.\\d+(?:\\.\\d+)?(?:[-+][\\w.]+)?\\b.*\\s*$')
+
+    int start = -1
+    for (int i = 0; i < lines.size(); i++) {
+        if (headerPattern.matcher(lines[i]).matches()) { start = i + 1; break }
+    }
+
+    if (start == -1) {
+        return null
+    }
+
+    def collected = []
+    for (int j = start; j < lines.size(); j++) {
+        def line = lines[j]
+        if (nextHeaderPattern.matcher(line).matches()) {
+            break
+        }
+
+        collected << line
+    }
+
+    while (!collected.isEmpty() && collected[0].trim().isEmpty()) {
+        collected.remove(0)
+    }
+
+    while (!collected.isEmpty() && collected[collected.size()-1].trim().isEmpty()) {
+        collected.remove(collected.size()-1)
+    }
+
+    return collected.isEmpty() ? null : collected.join(System.lineSeparator())
+}
+
+def changelogSection = extractChangelogForVersion(project.file('../CHANGELOG.md'), project.property('version').toString())
+
+tasks.register('publishCurseForge', TaskPublishCurseForge) {
+    group = 'publishing'
+    apiToken = System.getenv("CURSEFORGE_TOKEN")
+    def mainFile = upload("1327508", remapJar)
+
+    mainFile.displayName = "[FABRIC] Tooltip Overhaul " + project.property('version').toString() + "-" + minecraft_version
+
+    mainFile.addEnvironment("Client")
+    mainFile.addModLoader("Fabric")
+    mainFile.addGameVersion("1.20")
+    mainFile.addGameVersion("1.20.1")
+
+    mainFile.releaseType = "release"
+
+    mainFile.changelog = changelogSection
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "tooltip-overhaul"
+
+    versionName = "[FABRIC] Tooltip Overhaul " + project.property('version').toString() + "-" + minecraft_version
+
+    loaders = ["fabric"]
+    gameVersions = ["1.20", "1.20.1"]
+
+    uploadFile = remapJar
+    versionNumber = project.property('version').toString()
+    versionType = "release"
+
+    changelog = changelogSection
+}

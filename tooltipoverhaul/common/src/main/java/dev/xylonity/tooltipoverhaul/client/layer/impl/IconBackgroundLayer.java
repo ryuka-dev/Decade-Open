@@ -1,0 +1,26 @@
+package dev.xylonity.tooltipoverhaul.client.layer.impl;
+
+import dev.xylonity.tooltipoverhaul.client.layer.ITooltipLayer;
+import dev.xylonity.tooltipoverhaul.client.layer.LayerDepth;
+import dev.xylonity.tooltipoverhaul.client.render.TooltipContext;
+import dev.xylonity.tooltipoverhaul.client.layout.TooltipLayout;
+
+public interface IconBackgroundLayer extends ITooltipLayer {
+
+    @Override
+    default void renderInternal(TooltipContext context) {
+        context.push(() -> {
+            final int depth = TooltipLayout.hasExternalIcon(context) ? LayerDepth.OVERLAY.getZ() + 1 : getLayerDepth().getZ();
+            context.translate(0, 0, depth);
+            context.setLayerDepth(getLayerDepth());
+            render(context, context.getTooltipPosition());
+        });
+
+    }
+
+    @Override
+    default LayerDepth getLayerDepth() {
+        return LayerDepth.ICON_BACKGROUND;
+    }
+
+}

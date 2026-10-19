@@ -1,0 +1,390 @@
+package dev.xylonity.tooltipoverhaul.client.util;
+
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.xylonity.tooltipoverhaul.client.frame.CustomFrameData;
+import dev.xylonity.tooltipoverhaul.client.render.FadeRenderType;
+import dev.xylonity.tooltipoverhaul.client.render.TooltipContext;
+import dev.xylonity.tooltipoverhaul.client.style.preview.PreviewPanelDecorations;
+import dev.xylonity.tooltipoverhaul.config.TooltipsConfig;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+
+import java.util.Optional;
+
+public class RenderUtils {
+
+    public static String getTooltipLayout(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getTooltipLayout).orElse(TooltipsConfig.TOOLTIP_LAYOUT);
+    }
+
+    public static boolean shouldShowCompactModName(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldShowCompactModName).orElse(TooltipsConfig.COMPACT_SHOW_MOD_NAME);
+    }
+
+    public static boolean hasIcon(TooltipContext context) {
+        return !context.getStack().isEmpty() && !Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldDisableIcon).orElse(TooltipsConfig.DISABLE_ICON);
+    }
+
+    public static boolean hasRating(TooltipContext context) {
+        return !context.getStack().isEmpty() && Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldShowRating).orElse(TooltipsConfig.SHOW_RATING);
+    }
+
+    public static boolean hasDividerLine(TooltipContext context) {
+        return !context.getStack().isEmpty() && !Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldDisableDividerLine).orElse(TooltipsConfig.DISABLE_DIVIDER_LINE);
+    }
+
+    public static boolean hasShadow(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldShowShadow).orElse(TooltipsConfig.SHOW_TOOLTIP_SHADOW);
+    }
+
+    public static float getIconScale(TooltipContext context) {
+        final float scale = Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconSize).orElse(1f);
+        return Float.isFinite(scale) ? Math.max(0.5f, Math.min(2f, scale)) : 1f;
+    }
+
+    public static boolean effectsBehindText(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldRenderEffectsBehindText).orElse(TooltipsConfig.EFFECTS_BEHIND_TEXT);
+    }
+
+    public static boolean hasVignette(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::hasVignette).orElse(!TooltipsConfig.VIGNETTES.isBlank());
+    }
+
+    public static boolean shouldRender(TooltipContext context) {
+        return !Optional.ofNullable(context.getFrameData()).map(CustomFrameData::shouldDisableTooltip).orElse(false);
+    }
+
+    public static boolean hasPreviewOfStack(TooltipContext context) {
+        if (context.isPinned()) {
+            return false;
+        }
+
+        if (isComparisonActive(context)) {
+            return false;
+        }
+
+        if (!context.getStack().isEmpty() && !(context.getStack().getItem() instanceof ArmorItem)) {
+            return Optional.ofNullable(context.getFrameData()).map(data -> data.shouldShowSecondPanel(context)).orElse(context.getStack().getItem() instanceof TieredItem && TooltipsConfig.TIERED_ITEMS_RENDERER);
+        }
+
+        return false;
+    }
+
+    public static boolean hasPreviewOfArmorItem(TooltipContext context) {
+        if (context.isPinned()) {
+            return false;
+        }
+
+        if (isComparisonActive(context)) {
+            return false;
+        }
+
+        if (context.getStack().getItem() instanceof ArmorItem) {
+            return Optional.ofNullable(context.getFrameData()).map(data -> data.shouldShowSecondPanel(context)).orElse(TooltipsConfig.ARMOR_ITEMS_RENDERER);
+        }
+
+        return false;
+    }
+
+    private static boolean isComparisonActive(TooltipContext context) {
+        return EquippedContextCalculator.isComparisonRequested() && context.getOtherTooltipContext() != null;
+    }
+
+    public static int calculateSecondPanelSize(TooltipContext context, TextAxis axis) {
+        if (axis == TextAxis.X) {
+            return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getSecondPanelSizeX).orElse(TooltipsConfig.SECOND_PANEL_SIZE_X);
+        }
+
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getSecondPanelSizeY).orElse(TooltipsConfig.SECOND_PANEL_SIZE_Y);
+    }
+
+    public static String getIconAppearAnimation(TooltipContext context) {
+        if (TooltipsConfig.REDUCED_MOTION || context.isPinned()) {
+            return "none";
+        }
+
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconAppearAnimation).orElse(TooltipsConfig.ICON_APPEAR_ANIMATION);
+    }
+
+    public static float getIconRotatingSpeed(TooltipContext context) {
+        if (TooltipsConfig.REDUCED_MOTION) {
+            return 0;
+        }
+
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconRotatingSpeed).orElse(TooltipsConfig.ICON_ROTATING_SPEED);
+    }
+
+    public static String getIconBackgroundType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconBackground).orElse(TooltipsConfig.ICON_BACKGROUND_TYPE);
+    }
+
+    public static String getDividerLineType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getDividerLineType).orElse(TooltipsConfig.DIVIDER_LINE_TYPE);
+    }
+
+    public static String getEffect(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getEffect).orElse(TooltipsConfig.EFFECTS);
+    }
+
+    public static boolean usePlayerSkinInPreview(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getUsePlayerSkinInPreview).orElse(TooltipsConfig.USE_PLAYER_SKIN_IN_PREVIEW);
+    }
+
+    public static String getPreviewPanelModel(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getPreviewPanelModel).orElse(TooltipsConfig.PREVIEW_PANEL_MODEL);
+    }
+
+    public static boolean hasPreviewPanelSideTriangles(TooltipContext context) {
+        return getPreviewPanelSideTriangles(context) != PreviewPanelDecorations.SideTriangles.NONE;
+    }
+
+    public static PreviewPanelDecorations.SideTriangles getPreviewPanelSideTriangles(TooltipContext context) {
+        return PreviewPanelDecorations.SideTriangles.fromString(
+                Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getPreviewPanelSideTriangles).orElse(TooltipsConfig.PREVIEW_PANEL_SIDE_TRIANGLES));
+    }
+
+    public static String getPreviewPanelCornerType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getPreviewPanelCornerType).orElse(TooltipsConfig.PREVIEW_PANEL_CORNER_TYPE);
+    }
+
+    public static PreviewPanelDecorations.BackgroundCornerType getPreviewPanelBackgroundCornerType(TooltipContext context) {
+        return PreviewPanelDecorations.BackgroundCornerType.fromString(
+                Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getPreviewPanelBackgroundCornerType).orElse(TooltipsConfig.PREVIEW_PANEL_BACKGROUND_CORNER_TYPE));
+    }
+
+    public static int calculatePadding(TooltipContext context, TextAxis axis) {
+        if (context.getStack().isEmpty()) {
+            if (axis == TextAxis.X) {
+                return TooltipsConfig.NO_STACK_TOOLTIP_PADDING_X;
+            }
+
+            return TooltipsConfig.NO_STACK_TOOLTIP_PADDING_Y;
+        }
+
+        if (axis == TextAxis.X) {
+            return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getMainPanelPaddingX).orElse(TooltipsConfig.MAIN_PANEL_PADDING_X);
+        }
+
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getMainPanelPaddingY).orElse(TooltipsConfig.MAIN_PANEL_PADDING_Y);
+    }
+
+    public static String getInnerOverlayType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getBorderType).orElse(TooltipsConfig.DEFAULT_INNER_OVERLAY_TYPE);
+    }
+
+    public static String getInnerFrameCornerType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getInnerFrameCornerType).orElse(TooltipsConfig.INNER_FRAME_CORNER_TYPE);
+    }
+
+    public static String getBackgroundCornerType(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getBackgroundCornerType).orElse(TooltipsConfig.BACKGROUND_CORNER_TYPE);
+    }
+
+    public static void fillBackgroundShape(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color, PreviewPanelDecorations.BackgroundCornerType corner) {
+        if (corner == PreviewPanelDecorations.BackgroundCornerType.NOTCH) {
+            graphics.fill(x0, y0 + 1, x1, y1 - 1, color);
+            graphics.fill(x0 + 1, y0, x1 - 1, y1, color);
+            graphics.fill(x0 + 1, y0 - 1, x1 - 1, y0, color);
+            graphics.fill(x0 + 1, y1, x1 - 1, y1 + 1, color);
+            graphics.fill(x0 - 1, y0 + 1, x0, y1 - 1, color);
+            graphics.fill(x1, y0 + 1, x1 + 1, y1 - 1, color);
+            return;
+        }
+
+        final int trim = corner == PreviewPanelDecorations.BackgroundCornerType.ROUNDED ? 1 : 0;
+
+        // Background
+        graphics.fill(x0, y0, x1, y1, color);
+
+        // Top border
+        graphics.fill(x0 + trim, y0 - 1, x1 - trim, y0, color);
+        // Bottom border
+        graphics.fill(x0 + trim, y1, x1 - trim, y1 + 1, color);
+        // Left border
+        graphics.fill(x0 - 1, y0 + trim, x0, y1 - trim, color);
+        // Right border
+        graphics.fill(x1, y0 + trim, x1 + 1, y1 - trim, color);
+
+        if (corner == PreviewPanelDecorations.BackgroundCornerType.SQUARE) {
+            graphics.fill(x0 - 1, y0 - 1, x0, y0, color);
+            graphics.fill(x1, y0 - 1, x1 + 1, y0, color);
+            graphics.fill(x0 - 1, y1, x0, y1 + 1, color);
+            graphics.fill(x1, y1, x1 + 1, y1 + 1, color);
+        }
+
+    }
+
+    public static int cornerTrim(String type) {
+        return switch (type) {
+            case "rounded", "bevel" -> 1;
+            case "cut", "notch" -> 2;
+            default -> 0;
+        };
+
+    }
+
+    public static void applyFrameCorners(GuiGraphics graphics, int x0, int y0, int width, int height, int topColor, int bottomColor, String type) {
+        final int[][] add;
+        // Which corners the style is applied to, as indices into the corners array below, in order top left, top right, bottom left and bottom right
+        int[] cornersToApply = {0, 1, 2, 3};
+
+        switch (type) {
+            case "rounded" -> {
+                add = new int[][]{};
+            }
+            case "bevel" -> {
+                add = new int[][]{{1, 1}};
+            }
+            case "inner" -> {
+                add = new int[][]{{1, 1}};
+            }
+            case "cut" -> {
+                add = new int[][]{{1, 1}};
+            }
+            case "thick" -> {
+                add = new int[][]{{1, 1}, {2, 1}, {3, 1}, {1, 2}, {2, 2}, {1, 3}};
+                cornersToApply = new int[]{1};
+            }
+            case "full_thick" -> {
+                add = new int[][]{{1, 1}, {2, 1}, {3, 1}, {1, 2}, {2, 2}, {1, 3}};
+            }
+            case "bracket" -> {
+                add = new int[][]{{2, 2}, {3, 2}, {2, 3}};
+            }
+            case "block" -> {
+                add = new int[][]{{1, 1}, {2, 1}, {1, 2}, {2, 2}};
+            }
+            case "notch" -> {
+                add = new int[][]{{2, 1}, {1, 2}, {2, 2}};
+            }
+            case "weld" -> {
+                add = new int[][]{{1, 1}, {2, 1}, {1, 2}};
+            }
+            case "gem" -> {
+                add = new int[][]{{2, 1}, {4, 1}, {1, 2}, {3, 2}, {2, 3}, {1, 4}};
+            }
+            default -> {
+                return;
+            }
+
+        }
+
+        final int xr = x0 + width - 1;
+        final int yb = y0 + height - 1;
+
+        // (cornerX, cornerY, inward X step, inward Y step) for each of the four corners
+        int[][] corners = {
+                {x0, y0, 1, 1},
+                {xr, y0, -1, 1},
+                {x0, yb, 1, -1},
+                {xr, yb, -1, -1}
+        };
+
+        for (final int idx : cornersToApply) {
+            final int[] corner = corners[idx];
+            final int cornerX = corner[0];
+            final int cornerY = corner[1];
+            final int stepX = corner[2];
+            final int stepY = corner[3];
+            final int color = cornerY == y0 ? topColor : bottomColor;
+
+            for (final int[] pixel : add) {
+                fillPixel(graphics, cornerX + pixel[0] * stepX, cornerY + pixel[1] * stepY, color);
+            }
+
+        }
+
+    }
+
+    private static void fillPixel(GuiGraphics graphics, int x, int y, int color) {
+        graphics.fill(x, y, x + 1, y + 1, color);
+    }
+
+    public static String getOverlayLocation(TooltipContext context) {
+        return Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getTextureLocation).orElse(TooltipsConfig.GLOBAL_FRAME_OVERLAY_LOCATION);
+    }
+
+    public static void renderItem(TooltipContext context, @Nullable LivingEntity entity, @Nullable Level level, ItemStack stack, int seed) {
+        if (!stack.isEmpty()) {
+            final BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(stack, level, entity, seed);
+            context.getPose().pushPose();
+
+            try {
+                context.getPose().mulPoseMatrix((new Matrix4f()).scaling(1.0F, -1.0F, 1.0F));
+                context.getPose().scale(16.0F, 16.0F, 16.0F);
+                final boolean flag = !bakedmodel.usesBlockLight();
+                if (flag) {
+                    Lighting.setupForFlatItems();
+                }
+
+                // Cutout/solid item render types don't blend, so the fade of the in/out animation (applied
+                // through the shader color alpha) has no visible effect on them
+                MultiBufferSource bufferSource = context.getBuffer();
+                if (RenderSystem.getShaderColor()[3] < 1.0f) {
+                    final MultiBufferSource delegate = bufferSource;
+                    bufferSource = type -> delegate.getBuffer(FadeRenderType.remap(type));
+                }
+
+                Minecraft.getInstance().getItemRenderer().render(stack, ItemDisplayContext.GUI, false, context.getPose(), bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, bakedmodel);
+                context.flush();
+                if (flag) {
+                    Lighting.setupFor3DItems();
+                }
+
+            }
+            catch (Throwable throwable) {
+                final CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
+                final CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
+                crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
+                crashreportcategory.setDetail("Item Damage", () -> String.valueOf(stack.getDamageValue()));
+                crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTag()));
+                crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasFoil()));
+                throw new ReportedException(crashreport);
+            }
+
+            context.getPose().popPose();
+        }
+
+    }
+
+    public static void renderFrameGradient(GuiGraphics graphics, int x, int y, int width, int height, int c1, int c2, int c3) {
+        renderFrameGradient(graphics, x, y, width, height, c1, c2, c3, 0, 0);
+    }
+
+    public static void renderFrameGradient(GuiGraphics graphics, int x, int y, int width, int height, int c1, int c2, int c3, int trimTop, int trimBottom) {
+        final int mid = height / 2;
+        for (int lineX : new int[]{x, x + width - 1}) {
+            gradientColumn(graphics, lineX, y, y + mid, c1, c2, trimTop, 0);
+            gradientColumn(graphics, lineX, y + mid, y + height, c2, c3, 0, trimBottom);
+        }
+
+    }
+
+    private static void gradientColumn(GuiGraphics graphics, int x, int y0, int y1, int c0, int c1, int trimTop, int trimBottom) {
+        final int top = y0 + trimTop, bottom = y1 - trimBottom, span = y1 - y0;
+        if (bottom <= top || span <= 0) {
+            return;
+        }
+
+        final int topColor = trimTop == 0 ? c0 : ColorUtils.lerpColor(c0, c1, (float) trimTop / span);
+        final int bottomColor = trimBottom == 0 ? c1 : ColorUtils.lerpColor(c0, c1, (float) (span - trimBottom) / span);
+        graphics.fillGradient(x, top, x + 1, bottom, topColor, bottomColor);
+    }
+
+}

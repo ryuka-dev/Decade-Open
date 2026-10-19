@@ -1,0 +1,71 @@
+package dev.xylonity.tooltipoverhaul;
+
+import dev.xylonity.tooltipoverhaul.client.event.TooltipOverhaulClientEvents;
+import dev.xylonity.tooltipoverhaul.client.command.ReloadCommand;
+import dev.xylonity.tooltipoverhaul.config.ConfigManager;
+import dev.xylonity.tooltipoverhaul.config.TooltipsConfig;
+import dev.xylonity.tooltipoverhaul.client.frame.CustomFrameManager;
+import dev.xylonity.tooltipoverhaul.client.util.Palette;
+import dev.xylonity.tooltipoverhaul.client.style.effect.internal.EffectFieldRenderer;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+
+public class TooltipOverhaulFabric implements ClientModInitializer {
+
+    @Override
+    public void onInitializeClient() {
+
+        TooltipOverhaulClientEvents.init();
+        CoreShaderRegistrationCallback.EVENT.register(registry -> {
+            EffectFieldRenderer.reset();
+            try {
+                registry.register(EffectFieldRenderer.SHADER_ID, DefaultVertexFormat.POSITION, EffectFieldRenderer::setShader);
+            }
+            catch (Exception failure)  {
+                TooltipOverhaul.LOGGER.warn("Could not load effect shader... ", failure);
+            }
+
+        });
+
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EffectFieldRenderer.reset());
+
+        // Loads a simplex wrapper of nightconfig, impl derived from knightlib
+        ConfigManager.init(FabricLoader.getInstance().getConfigDir(), TooltipsConfig.class);
+        ConfigManager.onReload(TooltipsConfig.class, Palette::reload);
+
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            CustomFrameManager.initialize();
+        });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) ->
+                ReloadCommand.register(dispatcher)
+        );
+
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
+                new SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public ResourceLocation getFabricId() {
+                        return new ResourceLocation(TooltipOverhaul.MOD_ID, "custom_frames_reload");
+                    }
+
+                    @Override
+                    public void onResourceManagerReload(ResourceManager resourceManager) {
+                        CustomFrameManager.reset();
+                        CustomFrameManager.initialize();
+                    }
+
+                }
+        );
+
+    }
+
+}

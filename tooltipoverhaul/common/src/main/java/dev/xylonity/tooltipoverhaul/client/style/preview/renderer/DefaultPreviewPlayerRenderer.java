@@ -1,0 +1,79 @@
+package dev.xylonity.tooltipoverhaul.client.style.preview.renderer;
+
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.math.Axis;
+import dev.xylonity.tooltipoverhaul.client.layer.impl.PreviewRendererLayer;
+import dev.xylonity.tooltipoverhaul.client.render.TooltipContext;
+import dev.xylonity.tooltipoverhaul.client.util.AnimationUtils;
+import dev.xylonity.tooltipoverhaul.client.util.RenderUtils;
+import dev.xylonity.tooltipoverhaul.client.util.TextAxis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec2;
+
+
+public class DefaultPreviewPlayerRenderer implements PreviewRendererLayer {
+
+    @Override
+    public void render(TooltipContext context, Vec2 startPosition, Vec2 endPosition) {
+
+        int sizeX = RenderUtils.calculateSecondPanelSize(context, TextAxis.X);
+        int sizeY = RenderUtils.calculateSecondPanelSize(context, TextAxis.Y);
+        int y0 = (int) startPosition.y;
+        int x1 = (int) endPosition.x;
+
+        final Minecraft minecraft = Minecraft.getInstance();
+
+        // Without a loaded level the player doesnt exist, so the armor piece itself is drawn as a flat icon instead
+        if (minecraft.level == null && context.getStack().getItem() instanceof ArmorItem) {
+            final float iconScale = Math.min(sizeX, sizeY) / 20f;
+            context.translate(x1 + sizeX / 2f + 2 - 8 * iconScale, y0 + sizeY / 2f - 8 * iconScale, 0);
+            context.scale(iconScale, iconScale, 1f);
+            context.getGraphics().renderItem(context.getStack(), 0, 0);
+            return;
+        }
+
+        context.translate((x1 + sizeX / 2f + 2), (y0 + sizeY / 1.15f) + 2, 0);
+
+        context.multiply(Axis.XP, -30);
+        context.multiply(Axis.YP, -45);
+
+        context.multiply(Axis.YP, (((System.currentTimeMillis() - context.getStartTime()) / 20f) % 360) * AnimationUtils.getSecondPanelRendererSpeed(context));
+
+        final float scale = Math.min(sizeX, sizeY / 2f) / 1.25f;
+
+        context.scale(-scale, -scale, scale);
+
+        if (minecraft.level != null && context.getStack().getItem() instanceof ArmorItem armorItem) {
+            RemotePlayer player = PreviewEntityCache.player(minecraft.level, RenderUtils.usePlayerSkinInPreview(context));
+
+            for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                player.setItemSlot(equipmentSlot, ItemStack.EMPTY);
+            }
+            player.setItemSlot(armorItem.getEquipmentSlot(), context.getStack());
+
+            player.setYRot(0);
+            player.setXRot(0);
+            player.yBodyRot = 0;
+            player.yHeadRot = 0;
+
+            Lighting.setupForEntityInInventory();
+            EntityRenderDispatcher renderer = minecraft.getEntityRenderDispatcher();
+            renderer.setRenderShadow(false);
+            try {
+                renderer.render(player, 0, 0, 0, 0, 1, context.getPose(), context.getBuffer(), 0xF000F0);
+            }
+            finally {
+                player.setItemSlot(armorItem.getEquipmentSlot(), ItemStack.EMPTY);
+                renderer.setRenderShadow(true);
+            }
+
+        }
+
+    }
+
+}
