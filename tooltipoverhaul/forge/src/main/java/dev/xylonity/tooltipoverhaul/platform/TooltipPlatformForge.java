@@ -71,6 +71,13 @@ public class TooltipPlatformForge implements TooltipPlatform {
     }
 
     @Override
+    public List<ClientTooltipComponent> itemTooltip(ItemStack stack, Font font, int mouseX, int screenWidth, int screenHeight) {
+        // Decade: what GuiGraphics.renderTooltip(Font, ItemStack, int, int) hands renderTooltipInternal
+        return ForgeHooksClient.gatherTooltipComponents(stack, net.minecraft.client.gui.screens.Screen.getTooltipFromItem(net.minecraft.client.Minecraft.getInstance(), stack),
+                stack.getTooltipImage(), mouseX, screenWidth, screenHeight, font);
+    }
+
+    @Override
     public boolean fireRenderTooltipPre(GuiGraphics graphics, ItemStack stack, List<ClientTooltipComponent> components, Font font, int mouseX, int mouseY, int screenWidth, int screenHeight, ClientTooltipPositioner positioner) {
         RenderTooltipEvent.Pre event = ForgeHooksClient.onRenderTooltipPre(stack, graphics, mouseX, mouseY, screenWidth, screenHeight, components, font, positioner);
         return event.isCanceled();

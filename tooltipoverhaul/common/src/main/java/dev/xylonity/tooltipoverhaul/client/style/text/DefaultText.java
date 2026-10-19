@@ -50,6 +50,11 @@ public class DefaultText implements TextLayer {
             final int titleX = x + TooltipLayout.titleInset(context);
             final int titleY = y + (TooltipLayout.headerHeight(context) - title.getHeight()) / 2;
             title.renderText(font, titleX + computeTitleAlignment(context, title, titleX), titleY, poseStack.last().pose(), graphics.bufferSource());
+            // Decade: a pinned tooltip's title, underlined when the thing has a handbook entry (client/decade/DecadeNouns)
+            if (context.isPinned()) {
+                graphics.flush();
+                dev.xylonity.tooltipoverhaul.client.decade.DecadeNouns.title(graphics, font, title, titleX + computeTitleAlignment(context, title, titleX), titleY);
+            }
             renderCompactFooter(context, position);
             y = (int) position.y + TooltipLayout.compactBodyTop(context);
         }
@@ -65,6 +70,11 @@ public class DefaultText implements TextLayer {
 
                 // Title text
                 titleComponent.renderText(font, x + extraX + computeTitleAlignment(context, titleComponent, x + extraX), titleY, poseStack.last().pose(), graphics.bufferSource());
+                // Decade: a pinned tooltip's title, underlined when the thing has a handbook entry (client/decade/DecadeNouns)
+                if (context.isPinned()) {
+                    graphics.flush();
+                    dev.xylonity.tooltipoverhaul.client.decade.DecadeNouns.title(graphics, font, titleComponent, x + extraX + computeTitleAlignment(context, titleComponent, x + extraX), titleY);
+                }
 
                 if (hasRating) {
                     final Component rating = TextUtils.getRatingText(context);
@@ -137,6 +147,11 @@ public class DefaultText implements TextLayer {
                 }
 
                 component.renderText(font, x, y, poseStack.last().pose(), graphics.bufferSource());
+                // Decade: a pinned tooltip's nouns, underlined (client/decade/DecadeNouns)
+                if (context.isPinned()) {
+                    graphics.flush();
+                    dev.xylonity.tooltipoverhaul.client.decade.DecadeNouns.line(graphics, font, component, x, y);
+                }
 
                 // Some custom components rely on buffered text being flushed before their image pass, so when the scissor is disabled,
                 // a flush may not happen otherwise

@@ -2,5 +2,10 @@
   "tooltipoverhaul.common_rarity": "普通",
   "tooltipoverhaul.uncommon_rarity": "优秀",
   "tooltipoverhaul.rare_rarity": "稀有",
-  "tooltipoverhaul.epic_rarity": "史诗"
+  "tooltipoverhaul.epic_rarity": "史诗",
+  "tooltipoverhaul.binds.category": "悬浮窗",
+  "tooltipoverhaul.binds.compare_bind": "切换装备对比",
+  "tooltipoverhaul.binds.open_config": "打开悬浮窗设置",
+  "tooltipoverhaul.binds.pin_tooltip": "固定 / 取消固定悬浮窗",
+  "tooltipoverhaul.pinned.title": "已固定 · 拖动移动 · 单击查看手册"
 }

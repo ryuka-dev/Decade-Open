@@ -111,6 +111,11 @@ public class TooltipRenderer {
             return true;
         }
 
+        // Decade: the tooltip just pinned in its own place is not drawn again under the pin while it is still hovered
+        if (context.isMainTooltip() && PinnedTooltipState.suppressed(context)) {
+            return true;
+        }
+
         int index = 0;
         if (context.isMainTooltip()) {
             // A tooltip that is a prefix of a bigger one at the same spot is consumed (preventing that one bug where multiple tooltips were drawn at the same time)
@@ -135,6 +140,8 @@ public class TooltipRenderer {
         context.getPose().translate(0, 0, Mth.clamp(TooltipsConfig.TOOLTIP_Z_OFFSET, 0, 700) + index * TooltipFrameStack.EXTRA_DEPTH);
         try {
             TooltipAnimator.render(context, out, progress);
+            // Decade: the corner book: this tooltip has a handbook entry
+            dev.xylonity.tooltipoverhaul.client.decade.CornerBook.draw(context);
         }
         finally {
             context.flush();

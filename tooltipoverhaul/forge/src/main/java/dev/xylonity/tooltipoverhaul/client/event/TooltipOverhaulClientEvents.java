@@ -41,6 +41,8 @@ public class TooltipOverhaulClientEvents {
         public static void registerKeyMappingsEvent(RegisterKeyMappingsEvent event) {
             event.register(TooltipOverhaulKeyMappings.COMPARE_TOOLTIP);
             event.register(TooltipOverhaulKeyMappings.OPEN_CONFIG);
+            // Decade: in screens only: F is 回应 and TaCZ's interact in the world
+            TooltipOverhaulKeyMappings.PIN_TOOLTIP.setKeyConflictContext(net.minecraftforge.client.settings.KeyConflictContext.GUI);
             event.register(TooltipOverhaulKeyMappings.PIN_TOOLTIP);
         }
 

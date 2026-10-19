@@ -38,7 +38,7 @@ public class TooltipSizeCalculator {
         final int iconOffset = TooltipLayout.titleInset(context);
 
         // Computes approximated width and height using the component amount
-        int width = components.get(0).getWidth(font) + paddingX * 2 + iconOffset;
+        int width = components.get(0).getWidth(font) + paddingX * 2 + iconOffset + dev.xylonity.tooltipoverhaul.client.decade.CornerBook.room(context);
         int height = components.get(0).getHeight() + paddingY * 2;
         for (int i = 0; i < components.size(); i++) {
             if (i > 0) {
@@ -90,7 +90,7 @@ public class TooltipSizeCalculator {
             bodyHeight += components.get(i).getHeight();
         }
 
-        int width = Math.max(components.get(0).getWidth(font) + TooltipLayout.titleInset(context), bodyWidth) + padding;
+        int width = Math.max(components.get(0).getWidth(font) + TooltipLayout.titleInset(context) + dev.xylonity.tooltipoverhaul.client.decade.CornerBook.room(context), bodyWidth) + padding;
         // Lets short names fit naturally without making the panel too wide for long mod names
         int footerWidth = Math.min(font.width(context.getCompactModName()), 96);
         if (RenderUtils.hasRating(context)) {

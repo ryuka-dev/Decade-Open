@@ -8,8 +8,9 @@ import net.minecraft.client.Minecraft;
 
 public class TooltipOverhaulKeyMappings {
 
+    // Decade: F by default (upstream: unbound); the Forge half makes it screens-only
     public static final KeyMapping PIN_TOOLTIP = new KeyMapping(
-            "tooltipoverhaul.binds.pin_tooltip", InputConstants.UNKNOWN.getValue(), "tooltipoverhaul.binds.category");
+            "tooltipoverhaul.binds.pin_tooltip", InputConstants.KEY_F, "tooltipoverhaul.binds.category");
 
     public static final KeyMapping COMPARE_TOOLTIP = new KeyMapping(
             "tooltipoverhaul.binds.compare_bind",

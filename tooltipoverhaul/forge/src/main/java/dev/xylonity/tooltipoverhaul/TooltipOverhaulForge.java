@@ -50,10 +50,48 @@ public class TooltipOverhaulForge {
             );
 
             modBus.addListener(ClientEntrypoint::onClientSetup);
+            // Decade: decade_hud's hooks (client/decade/DecadeHooks)
+            modBus.addListener(ClientEntrypoint::onDecadeMessages);
             modBus.addListener(ClientEntrypoint::onRegisterClientReloads);
             modBus.addListener(ClientEntrypoint::onRegisterShaders);
 
             MinecraftForge.EVENT_BUS.addListener(ClientEntrypoint::onShutdown);
+        }
+
+        @SuppressWarnings("unchecked")
+        private static void onDecadeMessages(net.minecraftforge.fml.event.lifecycle.InterModProcessEvent event) {
+            event.getIMCStream().forEach(m -> {
+                Object v = m.messageSupplier().get();
+                switch (m.method()) {
+                    case "entry" -> {
+                        if (v instanceof java.util.function.Function<?, ?> f) {
+                            dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.entry = (java.util.function.Function<net.minecraft.world.item.ItemStack, String>) f;
+                        }
+                    }
+                    case "typing" -> {
+                        if (v instanceof java.util.function.BooleanSupplier b) {
+                            dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.typing = b;
+                        }
+                    }
+                    case "nouns" -> {
+                        if (v instanceof java.util.function.Function<?, ?> f) {
+                            dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.nouns = (java.util.function.Function<String, java.util.List<String>>) f;
+                        }
+                    }
+                    case "grade" -> {
+                        if (v instanceof java.util.function.Function<?, ?> f) {
+                            dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.grade = (java.util.function.Function<net.minecraft.world.item.ItemStack, Integer>) f;
+                        }
+                    }
+                    case "open" -> {
+                        if (v instanceof java.util.function.Consumer<?> c) {
+                            dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.open = (java.util.function.Consumer<String>) c;
+                        }
+                    }
+                    default -> {
+                    }
+                }
+            });
         }
 
         private static void onShutdown(GameShuttingDownEvent event) {

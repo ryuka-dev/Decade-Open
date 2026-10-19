@@ -38,11 +38,21 @@ public class ColorUtils {
     }
 
     public static int getIconBackgroundColor(TooltipContext context, int fallback) {
+        // Decade: a civilian or military item's icon box takes its grade's colour
+        final int grade = dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.grade(context.getStack());
+        if (grade != 0) {
+            return 0x90000000 | lerpColor(0xFF3E3E3E, 0xFF000000 | grade, 0.22f) & 0xFFFFFF;
+        }
         String color = Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconBackgroundColor).orElse(TooltipsConfig.ICON_BACKGROUND_COLOR);
         return color.isBlank() || color.equalsIgnoreCase("default") ? fallback : ConfigColorParser.parseColor(color);
     }
 
     public static int getIconBorderColor(TooltipContext context, int fallback) {
+        // Decade: see getIconBackgroundColor
+        final int grade = dev.xylonity.tooltipoverhaul.client.decade.DecadeHooks.grade(context.getStack());
+        if (grade != 0) {
+            return 0xE0000000 | grade;
+        }
         String color = Optional.ofNullable(context.getFrameData()).map(CustomFrameData::getIconBorderColor).orElse(TooltipsConfig.ICON_BORDER_COLOR);
         return color.isBlank() || color.equalsIgnoreCase("default") ? fallback : ConfigColorParser.parseColor(color);
     }
@@ -252,6 +262,11 @@ public class ColorUtils {
     }
 
     public static int[] getColorsPerRarity(TooltipContext context) {
+        // Decade: vanilla's rarity does not colour the frame (an enchanted book was gold): a frame's colour is what
+        // Decade's own rules say, the quality of a work; everything else the common grey
+        if (true) {
+            return Arrays.copyOf(Palette.COMMON, 3);
+        }
         final Rarity rarity = context.getStack().getRarity();
         int[] colors = Palette.CUSTOM_RARITY;
 

@@ -9,7 +9,7 @@
 | `decade-items/` | 0.1.20 | — (own mod · 自制) |
 | `automodpack/` | 4.0.6-decade.9 | https://github.com/Skidamek/AutoModpack |
 | `modernhud/` | 1.0.1-decade.1 | https://github.com/AquaticShelter/ModernHudZero |
-| `tooltipoverhaul/` | not released yet · 尚未发布 | https://github.com/Xylonity/Tooltip-Overhaul |
+| `tooltipoverhaul/` | 2.0.5-decade.7 | https://github.com/Xylonity/Tooltip-Overhaul |
 
 ## English
 
