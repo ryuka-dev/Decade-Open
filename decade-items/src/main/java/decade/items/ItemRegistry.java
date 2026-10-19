@@ -79,6 +79,8 @@ public final class ItemRegistry {
 
     public static final RegistryObject<MobEffect> DISGUISED = EFFECTS.register("disguised",
             () -> new ShellEffect(MobEffectCategory.BENEFICIAL, 0x4F6B3A));
+    /** Stress, after being hit: a server mod gives it and reads it; milk does not clear it (see StressEffect). */
+    public static final RegistryObject<MobEffect> STRESS = EFFECTS.register("stress", () -> new StressEffect(0x8A2E2E));
 
     /** Admin tool; its clicks are handled by decade_ruins on the server, by this registry name. */
     public static final RegistryObject<Item> RUIN_WAND = ITEMS.register("ruin_wand", SurveyWand::new);
