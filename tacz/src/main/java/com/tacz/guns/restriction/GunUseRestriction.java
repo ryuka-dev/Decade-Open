@@ -16,6 +16,8 @@ import net.minecraftforge.network.PacketDistributor;
 public final class GunUseRestriction {
     /** Every hotbar slot: no restriction by slot. */
     public static final int ALL_SLOTS = 9;
+    /** One bit for each hotbar slot. */
+    static final int ALL_SLOT_BITS = (1 << ALL_SLOTS) - 1;
 
     private GunUseRestriction() {
     }
@@ -34,6 +36,17 @@ public final class GunUseRestriction {
      */
     public static void sendSuspended(ServerPlayer player, boolean attack, boolean reload) {
         send(player, ServerMessageGunUseRestriction.suspended(attack, reload));
+    }
+
+    /**
+     * The hotbar slots, as bits from slot 0, whose gun the server refuses whatever the slot and the moment: shooting,
+     * melee and reloading with it. Sent when the set changes; 0 lifts it.
+     */
+    public static void sendRefusedSlots(ServerPlayer player, int slots) {
+        if ((slots & ~ALL_SLOT_BITS) != 0) {
+            throw new IllegalArgumentException("refused hotbar slots out of range: " + slots);
+        }
+        send(player, ServerMessageGunUseRestriction.refused(slots));
     }
 
     private static void send(ServerPlayer player, ServerMessageGunUseRestriction message) {

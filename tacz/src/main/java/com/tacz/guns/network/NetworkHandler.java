@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 public class NetworkHandler {
     // Decade: a client or server without our messages is refused at login instead of half working
-    private static final String VERSION = "1.0.5-decade.1";
+    private static final String VERSION = "1.0.5-decade.2";
 
     public static final SimpleChannel HANDSHAKE_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(GunMod.MOD_ID, "handshake"),
             () -> VERSION, it -> it.equals(VERSION), it -> it.equals(VERSION));

@@ -17,6 +17,7 @@ public final class ClientGunUseRestriction {
     private static int usableSlots = GunUseRestriction.ALL_SLOTS;
     private static boolean attackSuspended;
     private static boolean reloadSuspended;
+    private static int refusedSlots;
 
     private ClientGunUseRestriction() {
     }
@@ -30,13 +31,17 @@ public final class ClientGunUseRestriction {
         reloadSuspended = reload;
     }
 
+    static void acceptRefused(int received) {
+        refusedSlots = received;
+    }
+
     /** Shooting and melee hits with the gun in the main hand. */
     public static boolean blocksAttack(LocalPlayer player) {
-        return attackSuspended || outsideSlots(player);
+        return attackSuspended || outsideSlots(player) || refusedSlot(player);
     }
 
     public static boolean blocksReload(LocalPlayer player) {
-        return reloadSuspended || outsideSlots(player);
+        return reloadSuspended || outsideSlots(player) || refusedSlot(player);
     }
 
     /** How many hotbar slots, from the first, guns work in; {@link GunUseRestriction#ALL_SLOTS} when not told. */
@@ -48,10 +53,16 @@ public final class ClientGunUseRestriction {
         return player.getInventory().selected >= usableSlots;
     }
 
+    private static boolean refusedSlot(LocalPlayer player) {
+        int selected = player.getInventory().selected;
+        return selected >= 0 && selected < GunUseRestriction.ALL_SLOTS && (refusedSlots & (1 << selected)) != 0;
+    }
+
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         usableSlots = GunUseRestriction.ALL_SLOTS;
         attackSuspended = false;
         reloadSuspended = false;
+        refusedSlots = 0;
     }
 }

@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 public final class ServerMessageGunUseRestriction {
     private static final byte SLOTS = 0;
     private static final byte SUSPENDED = 1;
+    private static final byte REFUSED = 2;
     private static final int ATTACK = 1;
     private static final int RELOAD = 1 << 1;
 
@@ -31,6 +32,10 @@ public final class ServerMessageGunUseRestriction {
         return new ServerMessageGunUseRestriction(SUSPENDED, (attack ? ATTACK : 0) | (reload ? RELOAD : 0));
     }
 
+    static ServerMessageGunUseRestriction refused(int slots) {
+        return new ServerMessageGunUseRestriction(REFUSED, slots);
+    }
+
     public static void encode(ServerMessageGunUseRestriction message, FriendlyByteBuf buf) {
         buf.writeByte(message.kind);
         buf.writeVarInt(message.value);
@@ -42,6 +47,7 @@ public final class ServerMessageGunUseRestriction {
         boolean valid = switch (kind) {
             case SLOTS -> value >= 1 && value <= GunUseRestriction.ALL_SLOTS;
             case SUSPENDED -> (value & ~(ATTACK | RELOAD)) == 0;
+            case REFUSED -> (value & ~GunUseRestriction.ALL_SLOT_BITS) == 0;
             default -> false;
         };
         if (!valid) {
@@ -62,6 +68,8 @@ public final class ServerMessageGunUseRestriction {
     private static void apply(ServerMessageGunUseRestriction message) {
         if (message.kind == SLOTS) {
             ClientGunUseRestriction.acceptSlots(message.value);
+        } else if (message.kind == REFUSED) {
+            ClientGunUseRestriction.acceptRefused(message.value);
         } else {
             ClientGunUseRestriction.acceptSuspended((message.value & ATTACK) != 0, (message.value & RELOAD) != 0);
         }

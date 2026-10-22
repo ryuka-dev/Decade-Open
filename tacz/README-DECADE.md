@@ -52,6 +52,7 @@
 | decade.15 | 换用另一个 mod 画右下角的武器面板（德卡的 Modern Hud 修改版）后，decade.3 的武器槽面板让位，decade.12 挪字幕只看它的高度，字幕又落回去压在新面板上 | 字幕避让只认这个 mod 自己的面板 | 新增 `client/init/HudHeightMessages`：别的 mod 发跨 mod 消息 `hud_bottom_right_height`（一个每帧读一次的 `IntSupplier`，不画时为 0），`WeaponSlotHudOverlay.heightFromBottom` 取两者中高的那个，字幕照旧挪到它上面。不引用对方的类；没人发这条消息时行为与 decade.14 相同。服务端与网络协议不变 |
 | decade.16 | 持枪时按交互键只认配置里的方块与实体名单：德卡的物资箱是在任意家具上标记出来的，同一种方块别处并不是箱子；搜身的对象是倒地的玩家，不能把玩家整类加进名单 | 名单只看方块种类与实体种类，问的时候不带位置，也没有别的 mod 能加判断 | 新增 `client/init/InteractRuleMessages`：别的 mod 发跨 mod 消息 `interact_block_rule`（`BiPredicate<BlockPos, BlockState>`）或 `interact_entity_rule`（`Predicate<Entity>`）登记规则。`InteractKeyConfigRead` 加 `canInteractBlock(BlockPos, BlockState)` 与两份规则表，规则排在黑名单之后、白名单之前（黑名单仍然最优先）；`InteractKey` 与 `InteractKeyTextOverlay` 改调带位置的那个。没有 mod 登记时与上游完全相同 |
 | decade.17 | 持枪时看着一个按了也没反应的方块，照样出「[F] 交互」：德卡的遗迹里，熔炉、床、家具这些在服务端是拒绝的，但它们在白名单里，或被别的规则放行 | 规则只能放行、不能否决，白名单总能补上 | `InteractRuleMessages` 加两种消息 `interact_block_veto`（`BiPredicate<BlockPos, BlockState>`）与 `interact_entity_veto`（`Predicate<Entity>`）；`InteractKeyConfigRead` 加两份否决表，排在黑名单之后、规则与白名单之前：否决的方块与实体一律不出提示、按键也不交互。没有 mod 登记时与上游完全相同 |
+| decade.18 | 拿着服务器不让这个人用的枪（例如别人的交易绑定枪）按开火、换弹、枪托，客户端仍先播一下动作，服务端不出子弹 | 能不能用取决于这一把枪是谁的，decade.2 只按格子与时刻判断，客户端不知道哪一把不行 | `GunUseRestriction.sendRefusedSlots`：服务端下发快捷栏里哪几格的枪不管格子与时刻都会被拒（9 位，第 0 格起），变化时才发；`ClientGunUseRestriction` 照选中的那一格在开火、换弹、枪托之前一并判断，登出清空。消息种类加一种，旧客户端解不了，所以通道版本改为 `1.0.5-decade.2`，版本不一致的在登录时被拒 |
 
 ## 已知的上游问题，不修
 
