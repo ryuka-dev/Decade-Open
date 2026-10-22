@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-version = '1.0.1-decade.1'
+version = '1.0.1-decade.3'
 group = 'cc.xypp.modernhud'
 
 base {

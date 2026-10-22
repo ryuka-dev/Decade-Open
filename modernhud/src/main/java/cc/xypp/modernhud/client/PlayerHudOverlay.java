@@ -149,6 +149,13 @@ public class PlayerHudOverlay implements IGuiOverlay {
         try {
             if (decade) {
                 decadeLayout(player, font, true, graphics, HudConfig.barWidth);
+                // Decade: a worn device's charge, a row over the panel, lined up with the bars (RigSource)
+                Object[] rig = RigSource.read();
+                if (rig != null) {
+                    int headWidth = HudConfig.showHead ? HEAD_SIZE + 6 : 0;
+                    RigSource.draw(graphics, font, rig, headWidth, HudConfig.barWidth, headWidth + HudConfig.barWidth + 4,
+                            -panelPad - 4);
+                }
             } else {
                 layoutPass(player, font, true, graphics, HudConfig.barWidth);
             }
