@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "decade:block/inlay_bench"
+    },
+    "facing=east": {
+      "model": "decade:block/inlay_bench",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "decade:block/inlay_bench",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "decade:block/inlay_bench",
+      "y": 270
+    }
+  }
+}

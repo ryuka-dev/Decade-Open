@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "minecraft:block/smithing_table"
+      "model": "decade:block/workstation"
     },
     "facing=east": {
-      "model": "minecraft:block/smithing_table",
+      "model": "decade:block/workstation",
       "y": 90
     },
     "facing=south": {
-      "model": "minecraft:block/smithing_table",
+      "model": "decade:block/workstation",
       "y": 180
     },
     "facing=west": {
-      "model": "minecraft:block/smithing_table",
+      "model": "decade:block/workstation",
       "y": 270
     }
   }

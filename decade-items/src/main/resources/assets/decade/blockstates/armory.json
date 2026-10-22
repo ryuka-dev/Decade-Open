@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "minecraft:block/blast_furnace"
+      "model": "decade:block/armory"
     },
     "facing=east": {
-      "model": "minecraft:block/blast_furnace",
+      "model": "decade:block/armory",
       "y": 90
     },
     "facing=south": {
-      "model": "minecraft:block/blast_furnace",
+      "model": "decade:block/armory",
       "y": 180
     },
     "facing=west": {
-      "model": "minecraft:block/blast_furnace",
+      "model": "decade:block/armory",
       "y": 270
     }
   }

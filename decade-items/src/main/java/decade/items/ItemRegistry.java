@@ -81,6 +81,14 @@ public final class ItemRegistry {
             () -> new ShellEffect(MobEffectCategory.BENEFICIAL, 0x4F6B3A));
     /** Stress, after being hit: a server mod gives it and reads it; milk does not clear it (see StressEffect). */
     public static final RegistryObject<MobEffect> STRESS = EFFECTS.register("stress", () -> new StressEffect(0x8A2E2E));
+    /**
+     * Shown while a prototype device's move lasts, so the player sees how long is left: the scout's scan, and the quiet
+     * the cover leaves on a ruin. They do nothing by themselves; a server mod gives and takes them.
+     */
+    public static final RegistryObject<MobEffect> SCANNING = EFFECTS.register("scanning",
+            () -> new ShellEffect(MobEffectCategory.BENEFICIAL, 0x00FF41));
+    public static final RegistryObject<MobEffect> QUIET = EFFECTS.register("quiet",
+            () -> new ShellEffect(MobEffectCategory.BENEFICIAL, 0xFFB547));
 
     /** Admin tool; its clicks are handled by decade_ruins on the server, by this registry name. */
     public static final RegistryObject<Item> RUIN_WAND = ITEMS.register("ruin_wand", SurveyWand::new);
@@ -104,6 +112,47 @@ public final class ItemRegistry {
     public static final RegistryObject<Item> NEST_CORE = ITEMS.register("nest_core", () -> new Item(new Item.Properties()));
 
     /**
+     * Regional samples: one kind per far region, found only there. Polishing past a level and the regional modules
+     * take them; which recipe takes how many, and where they drop, is the server's.
+     */
+    public static final RegistryObject<Item> REGIONAL_SAMPLE_EAST = ITEMS.register("regional_sample_east", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> REGIONAL_SAMPLE_WEST = ITEMS.register("regional_sample_west", () -> new Item(new Item.Properties()));
+
+    /**
+     * Modules: an untuned module of each tier drops from elites, nests and airdrops and is tuned at the
+     * workstation into a {@link ModuleItem}, which goes into a socket of a gun or a piece of armor. What a tuning rolls,
+     * how many sockets a piece has and what a module does are all the server's.
+     */
+    public static final RegistryObject<Item> MODULE_BLANK_1 = ITEMS.register("module_blank_1", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> MODULE_BLANK_2 = ITEMS.register("module_blank_2", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> MODULE_BLANK_3 = ITEMS.register("module_blank_3", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> MODULE = ITEMS.register("module", decade.items.item.ModuleItem::new);
+    /** Untuned trait modules, one kind per far region: tuned at the workstation into one of that region's traits. */
+    public static final RegistryObject<Item> TRAIT_BLANK_EAST = ITEMS.register("trait_blank_east", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> TRAIT_BLANK_WEST = ITEMS.register("trait_blank_west", () -> new Item(new Item.Properties()));
+
+    /**
+     * Prototype devices: worn in the one prototype slot (a Curios slot the server's datapack adds), charged by what the
+     * player does and spent on the device's one great move. The charge, the move and what it may touch are all the
+     * server's; this is only the item: the piercing beam, the scout and the cover.
+     */
+    public static final RegistryObject<Item> PROTOTYPE_BEAM = ITEMS.register("prototype_beam",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> PROTOTYPE_SCOUT = ITEMS.register("prototype_scout",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> PROTOTYPE_COVER = ITEMS.register("prototype_cover",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+    /**
+     * Prototype shards, one kind per device: what a far point gives instead of a whole device, repaired into one at a
+     * station. Where they drop and what a repair takes are the server's.
+     */
+    public static final RegistryObject<Item> PROTOTYPE_SHARD_BEAM = ITEMS.register("prototype_shard_beam", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> PROTOTYPE_SHARD_SCOUT = ITEMS.register("prototype_shard_scout", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> PROTOTYPE_SHARD_COVER = ITEMS.register("prototype_shard_cover", () -> new Item(new Item.Properties()));
+    /** A note found in a ruin: its title only; used, it goes into the handbook's collection (a server mod's). */
+    public static final RegistryObject<Item> NOTE = ITEMS.register("note", decade.items.item.NoteItem::new);
+
+    /**
      * The specialty registration desk in Decade City: a public fixture, so nobody breaks it in survival
      * (admins place and remove it). Right-clicking it is handled by decade_specialty by this name.
      */
@@ -121,6 +170,20 @@ public final class ItemRegistry {
             Block.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(2.5F, 6.0F).noOcclusion()));
     public static final RegistryObject<Item> WORKSTATION_ITEM = ITEMS.register("workstation",
             () -> new BlockItem(WORKSTATION.get(), new Item.Properties()));
+
+    /**
+     * The polish bench (打磨台) and the inlay bench (镶嵌台): 改造 of guns and armor, one bench for polishing and
+     * one for modules, so nobody takes polishing for something done to a module. Made by a player and placed where they
+     * like, like the workstation; what they do is decade_crafting's, by these names. The looks are vanilla's for now.
+     */
+    public static final RegistryObject<Block> POLISH_BENCH = BLOCKS.register("polish_bench", () -> new FixtureBlock(
+            Block.Properties.of().mapColor(MapColor.STONE).sound(SoundType.STONE).strength(2.5F, 6.0F).noOcclusion()));
+    public static final RegistryObject<Item> POLISH_BENCH_ITEM = ITEMS.register("polish_bench",
+            () -> new BlockItem(POLISH_BENCH.get(), new Item.Properties()));
+    public static final RegistryObject<Block> INLAY_BENCH = BLOCKS.register("inlay_bench", () -> new FixtureBlock(
+            Block.Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2.5F, 6.0F).noOcclusion()));
+    public static final RegistryObject<Item> INLAY_BENCH_ITEM = ITEMS.register("inlay_bench",
+            () -> new BlockItem(INLAY_BENCH.get(), new Item.Properties()));
 
     /**
      * The armory (军火台): military-tier works. In phase 0 a public fixture in Decade City, so nobody

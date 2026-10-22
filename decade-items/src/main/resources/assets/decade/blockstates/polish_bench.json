@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "decade:block/polish_bench"
+    },
+    "facing=east": {
+      "model": "decade:block/polish_bench",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "decade:block/polish_bench",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "decade:block/polish_bench",
+      "y": 270
+    }
+  }
+}

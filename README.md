@@ -6,7 +6,7 @@
 |---|---|---|
 | `tacz/` | 1.1.8-hotfix-decade.18 | https://github.com/MCModderAnchor/TACZ |
 | `lrtactical/` | 0.4.3-decade.8 | https://github.com/LesRaisins-Studios/LesRaisins-Tactical-Equipements |
-| `decade-items/` | 0.1.20 | — (own mod · 自制) |
+| `decade-items/` | 0.1.36 | — (own mod · 自制) |
 | `automodpack/` | 4.0.6-decade.9 | https://github.com/Skidamek/AutoModpack |
 | `modernhud/` | 1.0.1-decade.3 | https://github.com/AquaticShelter/ModernHudZero |
 | `tooltipoverhaul/` | 2.0.5-decade.7 | https://github.com/Xylonity/Tooltip-Overhaul |
